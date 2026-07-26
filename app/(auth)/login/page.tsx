@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Logo from "@public/logo/logo.png";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import { Button, Typography, Alert } from "@mui/material";
+import { Button, Typography, Alert, CircularProgress } from "@mui/material";
 import FormikTextField from "@/src/components/form/FormikTextField";
 import FormikPasswordField from "@/src/components/form/FormikPasswordField";
 import { authClient } from "@/src/lib/auth-client";
@@ -29,6 +29,8 @@ const validationSchema = Yup.object({
 
 export default function LoginPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get("redirectTo") ?? "/dashboard";
     const [authError, setAuthError] = useState<string | null>(null);
 
     const handleSubmit = async (
@@ -42,23 +44,45 @@ export default function LoginPage() {
             password: values.password,
         });
 
+
+        if (error?.code === "EMAIL_NOT_VERIFIED") {
+            // Send OTP before redirecting to verify page
+            await authClient.emailOtp.sendVerificationOtp({
+                email: values.email,
+                type: "email-verification",
+            });
+            router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
+            return;
+        }
+
         if (error) {
             setAuthError(error.message ?? "Login failed. Please check your credentials.");
             setSubmitting(false);
             return;
         }
 
-        router.push("/home");
+        router.push(redirectTo);
     };
 
     return (
         <div className="min-h-screen flex bg-white">
+            {/* Back to Home */}
+            <Link
+                href="/home"
+                className="absolute top-6 left-6 z-20 flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-gray-500 hover:text-gray-800 hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all duration-200"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                </svg>
+                Back to Home
+            </Link>
+
             {/* Left Illustration */}
             <IllustrationPanel />
 
             {/* Right Form Panel */}
             <div className="flex flex-col justify-center items-center w-full md:w-1/2 min-h-screen">
-                <div className="w-full max-w-md p-8 sm:p-10">
+                <div className="w-full max-w-md p-8 sm:p-10" style={{ animation: "authFadeIn 0.5s ease-out" }}>
                     {/* Logo */}
                     <div className="flex mb-8 justify-center">
                         <Image src={Logo} alt="JobSpring Logo" width={200} height={34} priority />
@@ -134,7 +158,14 @@ export default function LoginPage() {
                                         "&.Mui-disabled": { opacity: 0.6 },
                                     }}
                                 >
-                                    {isSubmitting ? "Signing in…" : "Sign In"}
+                                    {isSubmitting ? (
+                                        <span className="flex items-center gap-2">
+                                            <CircularProgress size={18} sx={{ color: "white" }} />
+                                            Signing in…
+                                        </span>
+                                    ) : (
+                                        "Sign In"
+                                    )}
                                 </Button>
 
                                 <Typography

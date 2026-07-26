@@ -5,7 +5,7 @@ import Image from "next/image";
 import Logo from "../../../public/logo/logo.png";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import { Button, Typography, Alert } from "@mui/material";
+import { Button, Typography, Alert, CircularProgress } from "@mui/material";
 import FormikTextField from "@/src/components/form/FormikTextField";
 import FormikPasswordField from "@/src/components/form/FormikPasswordField";
 import IllustrationPanel from "@/src/components/layout/website/IllustrationPanel";
@@ -32,7 +32,7 @@ const validationSchema = Yup.object({
         .email("Invalid email address")
         .required("Email is required"),
     password: Yup.string()
-        .min(4, "Password must be at least 4 characters")
+        .min(8, "Password must be at least 8 characters")
         .required("Password is required"),
 });
 
@@ -69,7 +69,7 @@ export default function RegisterPage() {
             <IllustrationPanel />
 
             <div className="flex flex-col justify-center items-center w-full md:w-1/2 min-h-screen">
-                <div className="w-full max-w-md p-8 sm:p-10">
+                <div className="w-full max-w-md p-8 sm:p-10" style={{ animation: "authFadeIn 0.5s ease-out" }}>
                     <div className="flex mb-8 justify-center">
                         <Image src={Logo} alt="JobSpring Logo" width={200} height={34} priority />
                     </div>
@@ -143,7 +143,14 @@ export default function RegisterPage() {
                                         "&.Mui-disabled": { opacity: 0.6 },
                                     }}
                                 >
-                                    {isSubmitting ? "Creating account…" : "Create Account"}
+                                    {isSubmitting ? (
+                                        <span className="flex items-center gap-2">
+                                            <CircularProgress size={18} sx={{ color: "white" }} />
+                                            Creating account…
+                                        </span>
+                                    ) : (
+                                        "Create Account"
+                                    )}
                                 </Button>
 
                                 <Typography

@@ -1,8 +1,11 @@
 // app/actions/auth.ts
 "use server";
 
+import { auth } from "@/src/lib/auth";
+import { pool } from "@/src/lib/db";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { APIError } from "better-auth";
 
 export type AuthState = { error: string | null };
 
@@ -23,38 +26,35 @@ export async function signUpAction(
         return { error: "Password must be at least 8 characters." };
     }
 
-    const incomingHeaders = await headers();
-    const res = await fetch(`${BASE_URL}/api/auth/sign-up/email`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            cookie: incomingHeaders.get("cookie") ?? "",
-            "x-forwarded-for": incomingHeaders.get("x-forwarded-for") ?? "",
-            origin: BASE_URL, // ← fixes "Missing or null Origin"
-        },
-        body: JSON.stringify({ name, email, password }),
-    });
-
-    if (res.status === 429) {
-        return { error: "Too many attempts. Please wait a moment and try again." };
-    }
-    if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        return { error: data?.message ?? "Registration failed. Please try again." };
+    // Check if the user already exists in the database
+    try {
+        const { rows } = await pool.query('SELECT id FROM "user" WHERE email = $1 LIMIT 1', [email]);
+        if (rows.length > 0) {
+            return { error: "This email is already registered. Please sign in instead." };
+        }
+    } catch (dbErr) {
+        console.error("Database lookup error during registration:", dbErr);
+        return { error: "An unexpected error occurred. Please try again." };
     }
 
-    const setCookie = res.headers.get("set-cookie");
-    if (setCookie) {
-        const { cookies } = await import("next/headers");
-        const cookieStore = await cookies();
-        setCookie.split(/,(?=\s*\w+=)/).forEach((c) => {
-            const [pair] = c.split(";");
-            const [key, value] = pair.split("=");
-            if (key && value) cookieStore.set(key.trim(), value.trim());
+    try {
+        await auth.api.signUpEmail({
+            body: { name, email, password },
+            headers: await headers(),
         });
+    } catch (err) {
+        if (err instanceof APIError) {
+            if (err.status === 429) {
+                return { error: "Too many attempts. Please wait a moment and try again." };
+            }
+            return { error: err.message ?? "Registration failed. Please try again." };
+        }
+        console.error("Unexpected sign-up error:", err);
+        return { error: "Registration failed. Please try again." };
     }
 
-    redirect("/login");
+    // OTP is already sent by the emailOTP plugin (sendVerificationOnSignUp: true)
+    redirect(`/verify-email?email=${encodeURIComponent(email)}`);
 }
 
 export async function signInAction(
@@ -98,11 +98,11 @@ export async function signInAction(
         });
     }
 
-    redirect("/home");
+    redirect("/dashboard");
 }
 
 export async function signOutAction() {
     const { auth } = await import("@/src/lib/auth");
     await auth.api.signOut({ headers: await headers() });
-    redirect("/home");
+    redirect("/login");
 }
