@@ -1,37 +1,38 @@
+// app/(auth)/reset-password/page.tsx
 "use client";
 
-import { Suspense, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Logo from "@public/logo/logo.png";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import { Button, Typography, Alert, CircularProgress } from "@mui/material";
-import FormikPasswordField from "@/src/components/form/FormikPasswordField";
-import { confirmPasswordReset } from "@/src/lib/auth-client";
-import IllustrationPanel from "@/src/components/layout/website/IllustrationPanel";
+import { Typography, Alert } from "@mui/material";
+import { TextFormField } from "@/src/components/common/AppFormField";
+import { resetPassword } from "@/src/lib/auth-client";
+import IllustrationPanel from "@/src/components/website/IllustrationPanel";
+import AppButton from "@/src/components/common/AppButton";
+import { ResetPasswordValues } from "@/src/features/auth/type";
 
-interface ResetPasswordValues {
-    password: string;
-    confirmPassword: string;
-}
-
-const initialValues: ResetPasswordValues = { password: "", confirmPassword: "" };
+const initialValues: ResetPasswordValues = { newPassword: "", confirmPassword: "" };
 
 const validationSchema = Yup.object({
-    password: Yup.string().min(8, "Must be at least 8 characters").required("Password is required"),
+    newPassword: Yup.string()
+        .min(8, "Password must be at least 8 characters")
+        .required("New password is required"),
     confirmPassword: Yup.string()
-        .oneOf([Yup.ref("password")], "Passwords must match")
+        .oneOf([Yup.ref("newPassword")], "Passwords must match")
         .required("Please confirm your password"),
 });
 
 function ResetPasswordForm() {
+    const router = useRouter();
     const searchParams = useSearchParams();
     const token = searchParams.get("token");
 
-    const [authError, setAuthError] = useState<string | null>(null);
     const [done, setDone] = useState(false);
+    const [authError, setAuthError] = useState<string | null>(null);
 
     const handleSubmit = async (
         values: ResetPasswordValues,
@@ -40,164 +41,35 @@ function ResetPasswordForm() {
         setAuthError(null);
 
         if (!token) {
-            setAuthError("This link is invalid or has expired.");
+            setAuthError("This reset link is invalid or has expired.");
             setSubmitting(false);
             return;
         }
 
-        const { error } = await confirmPasswordReset({
-            newPassword: values.password,
-            token,
-        });
+        try {
+            const { error } = await resetPassword({
+                newPassword: values.newPassword,
+                token,
+            });
 
-        if (error) {
-            setAuthError(error.message ?? "This link is invalid or has expired.");
+            if (error) {
+                setAuthError(error.message ?? "This reset link is invalid or has expired.");
+                setSubmitting(false);
+                return;
+            }
+
+            setDone(true);
+            setTimeout(() => router.push("/sign-in"), 2500);
+        } catch {
+            setAuthError("Something went wrong. Please try again.");
+        } finally {
             setSubmitting(false);
-            return;
         }
-
-        setDone(true);
     };
 
-    if (!token) {
-        return (
-            <>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-1 text-center">
-                    Invalid or expired link
-                </h1>
-                <p className="text-sm text-gray-500 mb-8 text-center">
-                    This password reset link is missing or no longer valid.
-                </p>
-                <div className="text-center">
-                    <Link href="/forgot-password" className="text-sm text-[#07c4ec] font-semibold hover:underline">
-                        Request a new link
-                    </Link>
-                </div>
-            </>
-        );
-    }
-
-    if (done) {
-        return (
-            <>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-1 text-center">
-                    Password updated
-                </h1>
-                <p className="text-sm text-gray-500 mb-8 text-center">
-                    Your password has been reset successfully. You can now log in.
-                </p>
-                <div className="flex justify-center">
-                    <Link href="/login">
-                        <Button
-                            variant="contained"
-                            sx={{
-                                height: 46,
-                                px: 4,
-                                borderRadius: "8px",
-                                textTransform: "none",
-                                fontWeight: 600,
-                                fontSize: "0.95rem",
-                                backgroundColor: "#71dd37",
-                                boxShadow: "0 4px 12px rgba(113, 221, 55, 0.2)",
-                                "&:hover": {
-                                    backgroundColor: "#6ce729ff",
-                                    boxShadow: "0 6px 16px rgba(113, 221, 55, 0.3)",
-                                },
-                            }}
-                        >
-                            Go to login
-                        </Button>
-                    </Link>
-                </div>
-            </>
-        );
-    }
-
-    return (
-        <>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-1 text-center">
-                Set a new password
-            </h1>
-            <p className="text-sm text-gray-500 mb-8 text-center">
-                Choose a strong new password for your account.
-            </p>
-
-            {authError && (
-                <Alert severity="error" sx={{ mb: 3, borderRadius: "8px" }}>
-                    {authError}
-                </Alert>
-            )}
-
-            <Formik
-                initialValues={initialValues}
-                validationSchema={validationSchema}
-                onSubmit={handleSubmit}
-            >
-                {({ isSubmitting }) => (
-                    <Form noValidate className="flex flex-col gap-6">
-                        <FormikPasswordField
-                            name="password"
-                            label="New password"
-                            placeholder="Enter your new password"
-                            autoComplete="new-password"
-                            id="reset-password-password"
-                        />
-
-                        <FormikPasswordField
-                            name="confirmPassword"
-                            label="Confirm new password"
-                            placeholder="Confirm your new password"
-                            autoComplete="new-password"
-                            id="reset-password-confirm"
-                        />
-
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            fullWidth
-                            disabled={isSubmitting}
-                            id="reset-password-submit"
-                            sx={{
-                                height: 46,
-                                borderRadius: "8px",
-                                textTransform: "none",
-                                fontWeight: 600,
-                                fontSize: "0.95rem",
-                                backgroundColor: "#71dd37",
-                                boxShadow: "0 4px 12px rgba(113, 221, 55, 0.2)",
-                                "&:hover": {
-                                    backgroundColor: "#6ce729ff",
-                                    boxShadow: "0 6px 16px rgba(113, 221, 55, 0.3)",
-                                },
-                                "&.Mui-disabled": { opacity: 0.6 },
-                            }}
-                        >
-                            {isSubmitting ? (
-                                <span className="flex items-center gap-2">
-                                    <CircularProgress size={18} sx={{ color: "white" }} />
-                                    Updating…
-                                </span>
-                            ) : (
-                                "Reset password"
-                            )}
-                        </Button>
-
-                        <Typography variant="body2" align="center" sx={{ color: "#6b7280", mt: 1 }}>
-                            Remembered it?{" "}
-                            <Link href="/login" className="text-green-600 font-semibold hover:underline">
-                                Back to login
-                            </Link>
-                        </Typography>
-                    </Form>
-                )}
-            </Formik>
-        </>
-    );
-}
-
-export default function ResetPasswordPage() {
     return (
         <div className="min-h-screen flex bg-white">
+            {/* Back to Home */}
             <Link
                 href="/home"
                 className="absolute top-6 left-6 z-20 flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-gray-500 hover:text-gray-800 hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all duration-200"
@@ -216,11 +88,105 @@ export default function ResetPasswordPage() {
                         <Image src={Logo} alt="JobSpring Logo" width={200} height={34} priority />
                     </div>
 
-                    <Suspense fallback={<div className="text-center text-sm text-gray-400">Loading…</div>}>
-                        <ResetPasswordForm />
-                    </Suspense>
+                    {!token ? (
+                        <>
+                            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-1 text-center">
+                                Invalid reset link
+                            </h1>
+                            <p className="text-sm text-gray-500 mb-8 text-center">
+                                This password reset link is missing or has expired. Please request a new one.
+                            </p>
+                            <div className="text-center">
+                                <Link href="/forgot-password" className="text-sm text-[#07c4ec] font-semibold hover:underline">
+                                    Request a new link
+                                </Link>
+                            </div>
+                        </>
+                    ) : done ? (
+                        <>
+                            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-1 text-center">
+                                Password reset
+                            </h1>
+                            <p className="text-sm text-gray-500 mb-8 text-center">
+                                Your password has been updated. Redirecting you to sign in…
+                            </p>
+                            <div className="text-center">
+                                <Link href="/sign-in" className="text-sm text-[#07c4ec] font-semibold hover:underline">
+                                    Back to login
+                                </Link>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-1 text-center">
+                                Reset your password
+                            </h1>
+                            <p className="text-sm text-gray-500 mb-8 text-center">
+                                Enter a new password for your account.
+                            </p>
+
+                            {authError && (
+                                <Alert severity="error" sx={{ mb: 3, borderRadius: "8px" }}>
+                                    {authError}
+                                </Alert>
+                            )}
+
+                            <Formik
+                                initialValues={initialValues}
+                                validationSchema={validationSchema}
+                                onSubmit={handleSubmit}
+                            >
+                                {({ isSubmitting }) => (
+                                    <Form noValidate className="flex flex-col gap-6">
+                                        <TextFormField
+                                            name="newPassword"
+                                            label="New password"
+                                            type="password"
+                                            placeholder="Enter your new password"
+                                            autoComplete="new-password"
+                                            id="reset-password-new"
+                                        />
+
+                                        <TextFormField
+                                            name="confirmPassword"
+                                            label="Confirm password"
+                                            type="password"
+                                            placeholder="Re-enter your new password"
+                                            autoComplete="new-password"
+                                            id="reset-password-confirm"
+                                        />
+
+                                        <AppButton
+                                            type="submit"
+                                            disabled={isSubmitting}
+                                            loading={isSubmitting}
+                                            loadingText="Resetting…"
+                                            id="reset-password-submit"
+                                        >
+                                            Reset password
+                                        </AppButton>
+
+                                        <Typography variant="body2" align="center" sx={{ color: "#6b7280", mt: 1 }}>
+                                            Remembered it?{" "}
+                                            <Link href="/sign-in" className="text-green-600 font-semibold hover:underline">
+                                                Back to login
+                                            </Link>
+                                        </Typography>
+                                    </Form>
+                                )}
+                            </Formik>
+                        </>
+                    )}
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function ResetPasswordPage() {
+    return (
+        <Suspense fallback={null}>
+            <ResetPasswordForm />
+        </Suspense>
     );
 }

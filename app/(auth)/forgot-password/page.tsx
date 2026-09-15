@@ -5,15 +5,13 @@ import Image from "next/image";
 import Logo from "@public/logo/logo.png";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import { Button, Typography, Alert, CircularProgress } from "@mui/material";
-import FormikTextField from "@/src/components/form/FormikTextField";
+import { Typography, Alert } from "@mui/material";
+import { TextFormField } from "@/src/components/common/AppFormField";
 import { requestPasswordReset } from "@/src/lib/auth-client";
 import { useState } from "react";
-import IllustrationPanel from "@/src/components/layout/website/IllustrationPanel";
-
-interface ForgotPasswordValues {
-    email: string;
-}
+import IllustrationPanel from "@/src/components/website/IllustrationPanel";
+import AppButton from "@/src/components/common/AppButton";
+import { ForgotPasswordValues } from "@/src/features/auth/type";
 
 const initialValues: ForgotPasswordValues = { email: "" };
 
@@ -35,8 +33,6 @@ export default function ForgotPasswordPage() {
                 email: values.email,
                 redirectTo: "/reset-password",
             });
-            // Always show success state, even on failure, to avoid leaking
-            // which emails are registered
             setSent(true);
         } catch {
             setAuthError("Something went wrong. Please try again.");
@@ -78,7 +74,7 @@ export default function ForgotPasswordPage() {
                                 If an account exists for that email, we&apos;ve sent a link to reset your password.
                             </p>
                             <div className="text-center">
-                                <Link href="/login" className="text-sm text-[#07c4ec] font-semibold hover:underline">
+                                <Link href="/sign-in" className="text-sm text-[#07c4ec] font-semibold hover:underline">
                                     Back to login
                                 </Link>
                             </div>
@@ -108,7 +104,7 @@ export default function ForgotPasswordPage() {
                             >
                                 {({ isSubmitting }) => (
                                     <Form noValidate className="flex flex-col gap-6">
-                                        <FormikTextField
+                                        <TextFormField
                                             name="email"
                                             label="Email address"
                                             type="email"
@@ -117,36 +113,15 @@ export default function ForgotPasswordPage() {
                                             id="forgot-password-email"
                                         />
 
-                                        <Button
+                                        <AppButton
                                             type="submit"
-                                            variant="contained"
-                                            fullWidth
                                             disabled={isSubmitting}
+                                            loading={isSubmitting}
+                                            loadingText="Sending…"
                                             id="forgot-password-submit"
-                                            sx={{
-                                                height: 46,
-                                                borderRadius: "8px",
-                                                textTransform: "none",
-                                                fontWeight: 600,
-                                                fontSize: "0.95rem",
-                                                backgroundColor: "#71dd37",
-                                                boxShadow: "0 4px 12px rgba(113, 221, 55, 0.2)",
-                                                "&:hover": {
-                                                    backgroundColor: "#6ce729ff",
-                                                    boxShadow: "0 6px 16px rgba(113, 221, 55, 0.3)",
-                                                },
-                                                "&.Mui-disabled": { opacity: 0.6 },
-                                            }}
                                         >
-                                            {isSubmitting ? (
-                                                <span className="flex items-center gap-2">
-                                                    <CircularProgress size={18} sx={{ color: "white" }} />
-                                                    Sending…
-                                                </span>
-                                            ) : (
-                                                "Send reset link"
-                                            )}
-                                        </Button>
+                                            Send reset link
+                                        </AppButton>
 
                                         <Typography
                                             variant="body2"
@@ -155,7 +130,7 @@ export default function ForgotPasswordPage() {
                                         >
                                             Remembered it?{" "}
                                             <Link
-                                                href="/login"
+                                                href="/sign-in"
                                                 className="text-green-600 font-semibold hover:underline"
                                             >
                                                 Back to login

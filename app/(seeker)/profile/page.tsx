@@ -1,97 +1,122 @@
 "use client";
 
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+import { GraduationCap } from "lucide-react";
+import { AutocompleteFormField, DateField, TextFormField } from "@/src/components/common/AppFormField";
+import ProfileAvatarUpload from "@/src/components/seeker/ProfileAvatarUpload";
 import { authClient } from "@/src/lib/auth-client";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { User } from "lucide-react";
+import { WorkExperienceSection } from "@/src/features/candidate/components/WorkExperienceSection";
+
+interface EducationItem {
+    institution: string;
+    degree: string;
+    fieldOfStudy: string;
+    startDate: string;
+    endDate: string;
+}
+
+const emptyEducation: EducationItem = {
+    institution: "",
+    degree: "",
+    fieldOfStudy: "",
+    startDate: "",
+    endDate: "",
+};
+
+const validationSchema = Yup.object({
+    name: Yup.string().required("Full name is required"),
+    gender: Yup.string().required("Gender is required"),
+    email: Yup.string().email("Invalid email address").required("Email is required"),
+    phone: Yup.string().required("Phone number is required"),
+    dateOfBirth: Yup.string().required("Date of birth is required"),
+    education: Yup.array().of(
+        Yup.object({
+            institution: Yup.string().required("Institution is required"),
+            degree: Yup.string().required("Degree is required"),
+            fieldOfStudy: Yup.string().required("Field of study is required"),
+            startDate: Yup.string().required("Start date is required"),
+            endDate: Yup.string(),
+        })
+    ),
+});
 
 export default function ProfilePage() {
     const { data: session, isPending } = authClient.useSession();
-    const router = useRouter();
-
-    useEffect(() => {
-        if (!isPending && !session) {
-            router.push("/login");
-        }
-    }, [isPending, session, router]);
-
-    const handleLogout = async () => {
-        await authClient.signOut({
-            fetchOptions: {
-                onSuccess: () => router.push("/login"),
-            },
-        });
-    };
 
     if (isPending) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p className="text-gray-500">Loading...</p>
-            </div>
-        );
+        return <div className="h-64 animate-pulse bg-gray-50 rounded-xl" />;
     }
 
-    if (!session) return null;
-
-    const { user, session: currentSession } = session;
-    const expiresLabel = currentSession.expiresAt
-        ? new Date(currentSession.expiresAt).toLocaleString()
-        : "—";
-
-    const rows = [
-        { label: "User ID", value: user.id, mono: true },
-        { label: "Email", value: user.email },
-        { label: "Name", value: user.name },
-        { label: "Session expires", value: expiresLabel },
-    ];
+    const initialValues = {
+        name: session?.user?.name ?? "",
+        gender: "",
+        email: session?.user?.email ?? "",
+        phone: "",
+        dateOfBirth: "",
+        nationality: "",
+        position: "",
+        maritalStatus: "",
+        city: "",
+        district: "",
+        commune: "",
+        village: "",
+        education: [] as EducationItem[],
+    };
 
     return (
-        <div className="min-h-screen bg-gray-50 pt-24 px-6">
-            <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow p-8">
-                <h1 className="text-2xl font-bold text-gray-800 mb-6">Profile</h1>
+        <div className="w-full">
+            <ProfileAvatarUpload initialImageUrl={session?.user?.image} />
 
-                <div className="flex items-center gap-4 mb-8">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-r from-cyan-400 to-green-400 flex items-center justify-center overflow-hidden">
-                        {user.image ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                                src={user.image}
-                                alt={user.name ?? "Profile"}
-                                className="w-full h-full object-cover"
-                            />
-                        ) : (
-                            <User className="w-8 h-8 text-white" />
-                        )}
-                    </div>
-                    <div>
-                        <p className="text-xl font-semibold text-gray-800">{user.name}</p>
-                        <p className="text-gray-500">{user.email}</p>
-                    </div>
-                </div>
-
-                <div className="space-y-4">
-                    {rows.map((row) => (
-                        <div
-                            key={row.label}
-                            className="flex justify-between py-3 border-b border-gray-100"
-                        >
-                            <span className="text-gray-500">{row.label}</span>
-                            <span
-                                className={`text-gray-800 ${row.mono ? "font-mono text-sm" : ""}`}
-                            >
-                                {row.value}
-                            </span>
+            <Formik
+                initialValues={initialValues}
+                enableReinitialize
+                validationSchema={validationSchema}
+                onSubmit={(values) => {
+                    console.log(values);
+                }}
+            >
+                <Form>
+                    <div className="space-y-6 mt-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <TextFormField name="name" label="Full name" placeholder="e.g. John Doe" />
+                            <AutocompleteFormField name="gender" label="Gender" options={["Male", "Female"]} multiple={false} />
+                            <TextFormField name="phone" label="Phone" placeholder="e.g. 1234567890" />
+                            <TextFormField name="email" type="email" label="Email" placeholder="e.g. example@example.com" />
                         </div>
-                    ))}
-                </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <DateField name="dateOfBirth" label="Date of birth" />
+                            <AutocompleteFormField name="nationality" label="Nationality" options={["Khmer", "Kampuchea"]} multiple={false} />
+                            <TextFormField name="position" label="Position" placeholder="e.g. Developer" />
+                            <AutocompleteFormField name="maritalStatus" label="Marital Status" options={["Single", "Married", "Divorced", "Widowed"]} multiple={false} />
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <AutocompleteFormField name="city" label="City" options={["Phnom Penh", "Siem Reap", "Sihanoukville", "Battambang"]} multiple={false} />
+                            <AutocompleteFormField name="district" label="District/Khan" options={["Phnom Penh", "Siem Reap", "Sihanoukville", "Battambang"]} multiple={false} />
+                            <AutocompleteFormField name="commune" label="Commune/Sangkat" options={["Phnom Penh", "Siem Reap", "Sihanoukville", "Battambang"]} multiple={false} />
+                            <TextFormField name="village" label="Village" placeholder="e.g. Village Name" />
+                        </div>
+                    </div>
 
-                <button
-                    onClick={handleLogout}
-                    className="mt-8 w-full px-5 py-2.5 btn-gradient text-center cursor-pointer rounded-xl"
-                >
-                    Logout
-                </button>
-            </div>
+                    <div className="mt-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <WorkExperienceSection />
+                            </div>
+                            {/* <div>
+                                <WorkExperienceSection />
+                            </div> */}
+                        </div>
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="mt-8 px-6 py-2.5 bg-[#07c4ec] text-white rounded-xl text-sm font-semibold shadow-sm hover:bg-[#06b0d4] transition-colors"
+                    >
+                        Save Changes
+                    </button>
+                </Form>
+            </Formik>
         </div>
     );
 }

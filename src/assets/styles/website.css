@@ -1,0 +1,77 @@
+:root {
+    --cyan: #07c4ec;
+    --green: #71dd37;
+    --mid: #3cd97e;
+    --bg: #000000;
+    --white: #ffffff;
+    --surface: #09090b;
+    --border: #18181b;
+    --text: #ffffff;
+    --muted: #a1a1aa;
+    --subtle: #52525b;
+    --radius: 8px;
+    --radius-lg: 28px;
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+::selection {
+    background-color: rgba(7, 196, 236, 0.2);
+    color: #07c4ec;
+}
+
+html,
+body,
+button,
+input,
+select,
+textarea,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+a,
+div {
+    font-family: "Kantumruy Pro", var(--font-kantumruy-pro), "Battambang", "Poppins", sans-serif !important;
+}
+
+.font-find {
+    font-family: "Kantumruy Pro", var(--font-kantumruy-pro), "Battambang", "Poppins", sans-serif !important;
+}
+
+.g-text {
+    background: linear-gradient(135deg, #07c4ec 0%, #71dd37 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+}
+
+.btn-gradient {
+    background: linear-gradient(135deg, #07c4ec 0%, #3cd97e 50%, #71dd37 100%);
+    background-size: 200% auto;
+    transition: 0.4s ease;
+    color: rgb(255, 255, 255);
+    border-radius: var(--radius);
+}
+
+.btn-gradient:hover {
+    background-position: right center;
+}
+
+/* ── Auth page animations ── */
+@keyframes authFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

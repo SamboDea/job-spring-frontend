@@ -1,13 +1,27 @@
-"use client";
 
-import React from "react";
 import Link from "next/link";
-import {
-    FiSearch,
-    FiMapPin,
-    FiArrowRight,
-    FiZap
-} from "react-icons/fi";
+import { FiSearch, FiMapPin, FiZap } from "react-icons/fi";
+import { JobCardSkeleton } from "@/src/components/jobs/JobCard";
+import JobListWithDrawer from "@/src/features/jobs/components/JobListWithDrawer";
+import { fetchPublicJobPostsAction } from "@/src/actions/jobPost";
+import { Suspense } from "react";
+
+async function JobsSection() {
+    const { data: jobs, error } = await fetchPublicJobPostsAction();
+
+    if (error) {
+        return (
+            <p className="text-center text-sm text-slate-400 py-12">{error}</p>
+        );
+    }
+
+    return (
+        <JobListWithDrawer
+            jobs={jobs}
+            emptyMessage="No job postings available right now. Check back soon!"
+        />
+    );
+}
 
 export default function HomePage() {
 
@@ -31,55 +45,27 @@ export default function HomePage() {
                         JobSpring bridges the gap between top professionals and forward-thinking companies. Discover verified listings, smart recommendations, and an easier application workflow.
                     </p>
 
-                    {/* <form
-                        onSubmit={handleSearchSubmit}
-                        className="w-full bg-white p-3 rounded-2xl border border-slate-200 shadow-xl shadow-slate-100/50 flex flex-col md:flex-row gap-3 max-w-3xl mb-8"
-                    >
-                        <div className="flex-1 flex items-center px-3 gap-3 border-b md:border-b-0 md:border-r border-slate-100 py-2">
-                            <FiSearch className="text-slate-400 w-5 h-5 shrink-0" />
-                            <input
-                                type="text"
-                                placeholder="Job title, skills, or company name..."
-                                value={searchTitle}
-                                onChange={(e) => setSearchTitle(e.target.value)}
-                                className="w-full focus:outline-none text-sm text-slate-700 placeholder-slate-400 font-medium"
-                            />
-                        </div>
-                        <div className="flex-1 flex items-center px-3 gap-3 py-2">
-                            <FiMapPin className="text-slate-400 w-5 h-5 shrink-0" />
-                            <input
-                                type="text"
-                                placeholder="Location or 'Remote'..."
-                                value={searchLocation}
-                                onChange={(e) => setSearchLocation(e.target.value)}
-                                className="w-full focus:outline-none text-sm text-slate-700 placeholder-slate-400 font-medium"
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            className="px-8 py-3.5 btn-gradient font-bold text-sm text-white shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
-                        >
-                            <FiSearch /> Find Jobs
-                        </button>
-                    </form>
-
-                    <div className="flex items-center gap-4 mb-16">
-                        <Link
-                            href="/jobs"
-                            className="px-6 py-3 bg-slate-950 text-white rounded-xl text-sm font-bold shadow-md hover:bg-slate-800 transition-colors flex items-center gap-1"
-                        >
-                            Browse Jobs <FiArrowRight />
-                        </Link>
-                        <Link
-                            href="/register"
-                            className="px-6 py-3 border border-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors"
-                        >
-                            Post a Job
-                        </Link>
-                    </div> */}
                 </div>
+
             </section>
 
+            <section className="max-w-7xl mx-auto px-4 pb-20">
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-slate-900">Latest Job Openings</h2>
+                    <Link href="/jobs" className="text-sm font-semibold text-cyan-600 hover:text-cyan-700 transition-colors">
+                        View all →
+                    </Link>
+                </div>
+                <Suspense
+                    fallback={
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            {Array.from({ length: 6 }).map((_, i) => <JobCardSkeleton key={i} />)}
+                        </div>
+                    }
+                >
+                    <JobsSection />
+                </Suspense>
+            </section>
         </div>
     );
 }
