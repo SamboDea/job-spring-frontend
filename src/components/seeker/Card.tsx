@@ -19,7 +19,6 @@ import { ChevronDown, Plus, Trash2 } from "lucide-react";
 export interface CardProps {
     title: string;
     subtitle?: string;
-    icon?: React.ReactNode;
     canRemove?: boolean;
     onRemove?: () => void;
     defaultExpanded?: boolean;
@@ -34,7 +33,6 @@ export interface CardProps {
 export function Card({
     title,
     subtitle,
-    icon,
     canRemove = false,
     onRemove,
     defaultExpanded = true,
@@ -64,8 +62,8 @@ export function Card({
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    px: 2.5,
-                    py: 1.75,
+                    px: 2,
+                    py: 1,
                     cursor: "pointer",
                     bgcolor: expanded ? "rgba(7, 196, 236, 0.04)" : "transparent",
                     transition: "background-color 0.2s ease",
@@ -73,51 +71,19 @@ export function Card({
                 }}
             >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, overflow: "hidden" }}>
-                    {icon && (
-                        <Box
-                            sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                width: 38,
-                                height: 38,
-                                borderRadius: "10px",
-                                bgcolor: "rgba(7, 196, 236, 0.12)",
-                                color: "#07c4ec",
-                                flexShrink: 0,
-                            }}
-                        >
-                            {icon}
-                        </Box>
-                    )}
-                    {/* <Box sx={{ minWidth: 0 }}>
-                        <Typography
-                            variant="subtitle1"
-                            sx={{
-                                fontWeight: 600,
-                                color: "#1f2937",
-                                lineHeight: 1.2,
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                            }}
-                        >
-                            {title}
-                        </Typography>
-                        {subtitle && (
-                            <Typography
-                                variant="caption"
-                                sx={{
-                                    color: "#07c4ec",
-                                    fontWeight: 500,
-                                    mt: 0.25,
-                                    display: "block",
-                                }}
-                            >
-                                {subtitle}
-                            </Typography>
-                        )}
-                    </Box> */}
+                    <Collapse in={!expanded} timeout="auto" unmountOnExit>
+                        <CardContent sx={{ p: 3, pt: 2.5 }}>
+                            {preview ? (
+                                <Box sx={{ color: "#6b7280" }}>
+                                    <Typography variant="h6" sx={{ color: "#000000" }}>{title}</Typography>
+                                    {subtitle && <Typography variant="body2" sx={{ color: "#6b7280", fontWeight: "medium", fontSize: "16px" }}>{subtitle}</Typography>}
+                                    <Typography variant="body2" >
+                                        {startDate} - {isCurrent ? "Present" : endDate}
+                                    </Typography>
+                                </Box>
+                            ) : ""}
+                        </CardContent>
+                    </Collapse>
                 </Box>
 
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
@@ -155,18 +121,6 @@ export function Card({
                 </Box>
             </Box>
 
-            <Collapse in={!expanded} timeout="auto" unmountOnExit>
-                <CardContent sx={{ p: 3, pt: 2.5 }}>
-                    {preview ?? (
-                        <Box sx={{ color: "#6b7280" }}>
-                            <Typography variant="h4">{title}</Typography>
-                            {subtitle && <Typography variant="h5">{subtitle}</Typography>}
-                            <Typography variant="h6" sx={{ color: "#6b7280" }}>{startDate} - {isCurrent ? "Present" : endDate}</Typography>
-                        </Box>
-                    )}
-                </CardContent>
-            </Collapse>
-
             <Collapse in={expanded} timeout="auto" unmountOnExit>
                 <CardContent sx={{ p: 3, pt: 2.5 }}>
                     {children}
@@ -183,7 +137,6 @@ export interface DynamicCardSectionProps<T = any> {
     startDate?: string;
     endDate?: string;
     isCurrent?: boolean;
-    icon?: React.ReactNode;
     emptyTitle?: string;
     emptySubtext?: string;
     addButtonText?: string;
@@ -200,7 +153,6 @@ export interface DynamicCardSectionProps<T = any> {
 export function DynamicCardSection<T = any>({
     name,
     title,
-    icon,
     emptyTitle = `No ${title.toLowerCase()} added yet`,
     emptySubtext = `Add your ${title.toLowerCase()} details here.`,
     addButtonText = `Add ${title}`,
@@ -222,11 +174,10 @@ export function DynamicCardSection<T = any>({
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            {icon}
                             <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
-                            <span className="text-xs h-6 w-6 flex items-center justify-center px-2 py-0.5 rounded-full bg-cyan-50 text-[#07c4ec] border border-[#07c4ec]/30 font-medium">
+                            {/* <span className="text-xs h-6 w-6 flex items-center justify-center px-2 py-0.5 rounded-full bg-cyan-50 text-[#07c4ec] border border-[#07c4ec]/30 font-medium">
                                 {items.length}
-                            </span>
+                            </span> */}
                         </div>
 
                         <Button
@@ -255,16 +206,11 @@ export function DynamicCardSection<T = any>({
                             sx={{
                                 border: "1.5px dashed rgba(7, 196, 236, 0.35)",
                                 borderRadius: "12px",
-                                p: 4,
+                                p: 2.7,
                                 textAlign: "center",
                                 bgcolor: "rgba(7, 196, 236, 0.02)",
                             }}
                         >
-                            {icon && (
-                                <div className="flex justify-center mb-2 opacity-70">
-                                    {icon}
-                                </div>
-                            )}
                             <Typography variant="body1" sx={{ fontWeight: 600, color: "#374151" }}>
                                 {emptyTitle}
                             </Typography>
@@ -317,7 +263,6 @@ export function DynamicCardSection<T = any>({
                                         startDate={cardStartDate}
                                         endDate={cardEndDate}
                                         isCurrent={cardIsCurrent}
-                                        icon={icon}
                                         canRemove={items.length > 0}
                                         onRemove={() => remove(index)}
                                         defaultExpanded={index === items.length - 1}

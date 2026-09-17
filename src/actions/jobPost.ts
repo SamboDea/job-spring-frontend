@@ -58,8 +58,8 @@ export async function getNextJobCode(): Promise<string> {
                 const posts: unknown[] = Array.isArray(body)
                     ? body
                     : Array.isArray(body?.content)
-                    ? body.content
-                    : [];
+                        ? body.content
+                        : [];
 
                 let maxSeq = 0;
                 for (const post of posts) {
@@ -157,8 +157,8 @@ export async function fetchJobPostsAction(): Promise<{ success: boolean; error: 
         const posts: JobPost[] = Array.isArray(body)
             ? body
             : Array.isArray(body?.content)
-            ? body.content
-            : [];
+                ? body.content
+                : [];
 
         return { success: true, error: null, data: posts };
     } catch (err) {
@@ -264,8 +264,8 @@ export async function fetchPublicJobPostsAction(): Promise<{ success: boolean; e
         const posts: JobPost[] = Array.isArray(body)
             ? body
             : Array.isArray(body?.content)
-            ? body.content
-            : [];
+                ? body.content
+                : [];
 
         return { success: true, error: null, data: posts };
     } catch (err) {

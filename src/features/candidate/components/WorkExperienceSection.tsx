@@ -1,6 +1,5 @@
 "use client";
-
-import { Briefcase } from "lucide-react";
+import { Formik, Form } from "formik";
 import { Box } from "@mui/material";
 import { useFormikContext } from "formik";
 import { DynamicCardSection } from "@/src/components/seeker/Card";
@@ -33,12 +32,11 @@ export function WorkExperienceSection() {
         <DynamicCardSection<WorkExperienceItem>
             name="workExperience"
             title="Work Experience"
-            icon={<Briefcase className="w-5 h-5" />}
             emptyTitle="No work experience added yet"
             emptySubtext="Add your past roles and responsibilities."
             addButtonText="Add Work Experience"
             initialEmptyItem={initialEmptyWorkExperience}
-            getItemTitle={(item) => item.company || "Company"}
+            getItemTitle={(item) => item.company || ""}
             getItemSubtitle={(item) => item.position || ""}
             getItemStartDate={(item) => item.startDate}
             getItemEndDate={(item) => item.endDate}
@@ -51,7 +49,7 @@ export function WorkExperienceSection() {
                         sx={{
                             display: "grid",
                             gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-                            gap: 2,
+                            gap: 3,
                         }}
                     >
                         <TextFormField name={`${namePrefix}.company`} label="Company" />
@@ -82,8 +80,8 @@ export function WorkExperienceSection() {
 
                         <Box sx={{ gridColumn: { xs: "1", sm: "1 / -1" } }}>
                             <RichTextField
-                                name={`${namePrefix}.description`}
                                 label="Description"
+                                name={`${namePrefix}.description`}
                                 placeholder="Describe your responsibilities and achievements..."
                             />
                         </Box>

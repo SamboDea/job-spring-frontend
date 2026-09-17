@@ -5,6 +5,7 @@ import { pool } from "@/src/lib/db";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { APIError } from "better-auth";
+import { Candidate, createCandidate, getCandidateByUserId } from "@/src/features/candidate/action";
 
 export type AuthState = { error: string | null };
 
@@ -38,16 +39,27 @@ export async function signUpAction(
                 name,
                 email,
                 password,
+                callbackURL: "/sign-in"
             },
             headers: await headers(),
         });
 
-        // After sign-up, set the chosen role directly in the database
         if (result?.user?.id) {
             await pool.query(
                 `UPDATE "user" SET role = $1 WHERE id = $2`,
                 [role, result.user.id]
             );
+
+            if (role === "candidate") {
+                try {
+                    const existing = await getCandidateByUserId(result.user.id);
+                    if (!existing) {
+                        await createCandidate({}, result.user.id);
+                    }
+                } catch (err) {
+                    console.error("Failed to create candidate record:", err);
+                }
+            }
         }
     } catch (error) {
         console.error("Better Auth signup error:", error);
@@ -104,6 +116,8 @@ export async function signInAction(
     }
 
     const setCookie = res.headers.get("set-cookie");
+    let userId: string | undefined;
+
     if (setCookie) {
         const { cookies } = await import("next/headers");
         const cookieStore = await cookies();
@@ -114,7 +128,24 @@ export async function signInAction(
         });
     }
 
-    redirect("/dashboard");
+    const signInData = await res.json().catch(() => null);
+    userId = signInData?.user?.id;
+
+    if (userId) {
+        let existingCandidate: Candidate | null;
+        try {
+            existingCandidate = await getCandidateByUserId(userId);
+        } catch (err) {
+            console.error("Failed to check candidate:", err);
+            return { error: "Something went wrong. Please try again." };
+        }
+
+        if (!existingCandidate) {
+            redirect("/onboarding");
+        }
+    }
+
+    redirect("/profile");
 }
 
 export async function signOutAction() {

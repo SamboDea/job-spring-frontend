@@ -22,6 +22,7 @@ export default function AppButton({
         <Button
             {...props}
             disabled={disabled || loading}
+            type="submit"
             sx={{
                 height: 46,
                 borderRadius: "8px",

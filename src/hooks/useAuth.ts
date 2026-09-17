@@ -15,7 +15,7 @@ export default function useAuth() {
     const isSubmittingRef = useRef(false);
     const router = useRouter();
     const searchParams = useSearchParams();
-    const redirectTo = searchParams.get("redirectTo") ?? "/dashboard";
+    const queryRedirect = searchParams.get("redirectTo");
 
     const signUp = async (
         values: SignUpValues,
@@ -47,19 +47,17 @@ export default function useAuth() {
         values: LoginValues,
         { setSubmitting }: { setSubmitting: (v: boolean) => void }
     ) => {
-
         setAuthError(null);
 
-        const { error } = await authClient.signIn.email({
+        const { data, error } = await authClient.signIn.email({
             email: values.email,
             password: values.password,
         });
 
-
         if (error?.code === "EMAIL_NOT_VERIFIED") {
             await authClient.sendVerificationEmail({
                 email: values.email,
-                callbackURL: redirectTo,
+                callbackURL: queryRedirect ?? "/profile",
             });
             router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
             return;
@@ -71,7 +69,14 @@ export default function useAuth() {
             return;
         }
 
-        router.push(redirectTo);
+        if (queryRedirect) {
+            router.push(queryRedirect);
+        } else {
+            const role = (data?.user as any)?.role;
+            const target = role === "candidate" ? "/profile" : "/dashboard";
+            router.push(target);
+        }
+        router.refresh();
     };
 
     return {

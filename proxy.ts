@@ -1,75 +1,147 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
+import createMiddleware from "next-intl/middleware";
+import { routing } from "@/src/i18n/routing";
 
-const protectedRoutes = ["/profile", "/applications"];
+const intlMiddleware = createMiddleware(routing);
 
-const roleRoutes: { prefix: string; roles: string[] }[] = [
-    { prefix: "/dashboard", roles: ["admin"] },
-    { prefix: "/employer", roles: ["employer"] },
-    { prefix: "/admin", roles: ["admin"] },
-    { prefix: "/jobs", roles: ["employer", "admin"] },
+const candidateRoutes = ["/profile", "/my-jobs"];
+
+const companyAndAdminRoutes = [
+    "/dashboard",
+    "/jobs",
+    "/account",
+    "/candidates",
+    "/companies",
+    "/recruiters",
+    "/interviews",
+    "/messages",
+    "/notifications",
+    "/reports",
+    "/calendar",
+    "/saved-candidates",
+    "/talent-pool",
+    "/applications",
 ];
 
-const authOnlyRoutes = ["/sign-in", "/sign-up"];
+const adminOnlyRoutes = ["/admin"];
+
+const genericProtectedRoutes = ["/change-password"];
+
+const authOnlyRoutes = [
+    "/sign-in",
+    "/sign-up",
+    "/forgot-password",
+    "/reset-password",
+];
+
+function getRoleHome(role?: string): string {
+    if (role === "admin" || role === "company" || role === "employer") {
+        return "/dashboard";
+    }
+    return "/profile";
+}
+
+function stripLocale(pathname: string): string {
+    const segments = pathname.split("/");
+    const maybeLocale = segments[1];
+    if ((routing.locales as readonly string[]).includes(maybeLocale)) {
+        const rest = "/" + segments.slice(2).join("/");
+        return rest === "/" ? "/" : rest.replace(/\/+$/, "") || "/";
+    }
+    return pathname;
+}
 
 export default async function proxy(request: NextRequest) {
-    const { pathname } = request.nextUrl;
+    const { pathname: rawPathname, search } = request.nextUrl;
+    const pathname = stripLocale(rawPathname);
     const sessionCookie = getSessionCookie(request);
 
-    const isProtected = protectedRoutes.some((p) => pathname.startsWith(p));
-    const isRoleRoute = roleRoutes.find((r) => pathname.startsWith(r.prefix));
+    const isCandidateRoute = candidateRoutes.some((p) => pathname.startsWith(p));
+    const isCompanyOrAdminRoute = companyAndAdminRoutes.some((p) => pathname.startsWith(p));
+    const isAdminOnlyRoute = adminOnlyRoutes.some((p) => pathname.startsWith(p));
+    const isGenericProtected = genericProtectedRoutes.some((p) => pathname.startsWith(p));
     const isAuthOnly = authOnlyRoutes.some((p) => pathname.startsWith(p));
-    const needsSession = isProtected || isRoleRoute;
 
-    if (!sessionCookie && needsSession) {
+    const isProtected =
+        isCandidateRoute ||
+        isCompanyOrAdminRoute ||
+        isAdminOnlyRoute ||
+        isGenericProtected;
+
+    if (!sessionCookie && isProtected) {
         const loginUrl = new URL("/sign-in", request.url);
-        loginUrl.searchParams.set("redirectTo", pathname);
+        loginUrl.searchParams.set("redirectTo", `${rawPathname}${search}`);
         return NextResponse.redirect(loginUrl);
     }
 
-    if (sessionCookie && isAuthOnly) {
-        return NextResponse.redirect(new URL("/profile", request.url));
-    }
-
-    if (sessionCookie && needsSession) {
+    if (sessionCookie) {
         try {
             const sessionRes = await fetch(
                 new URL("/api/auth/get-session", request.url),
-                { headers: { cookie: request.headers.get("cookie") ?? "" } }
+                {
+                    headers: {
+                        cookie: request.headers.get("cookie") ?? "",
+                    },
+                }
             );
 
             if (!sessionRes.ok) {
-                const loginUrl = new URL("/sign-in", request.url);
-                loginUrl.searchParams.set("redirectTo", pathname);
-                return NextResponse.redirect(loginUrl);
+                if (isProtected) {
+                    const loginUrl = new URL("/sign-in", request.url);
+                    loginUrl.searchParams.set("redirectTo", `${rawPathname}${search}`);
+                    return NextResponse.redirect(loginUrl);
+                }
+                return intlMiddleware(request);
             }
 
-            if (isRoleRoute) {
-                const session = await sessionRes.json();
-                const userRole = session?.user?.role;
+            const data = await sessionRes.json();
+            const session = data?.session;
+            const userRole = data?.user?.role;
 
-                if (!isRoleRoute.roles.includes(userRole)) {
+            if (!session) {
+                if (isProtected) {
+                    const loginUrl = new URL("/sign-in", request.url);
+                    loginUrl.searchParams.set("redirectTo", `${rawPathname}${search}`);
+                    return NextResponse.redirect(loginUrl);
+                }
+                return intlMiddleware(request);
+            }
+
+            if (isAuthOnly) {
+                return NextResponse.redirect(new URL(getRoleHome(userRole), request.url));
+            }
+
+            if (isAdminOnlyRoute && userRole !== "admin") {
+                return NextResponse.redirect(new URL("/forbidden", request.url));
+            }
+
+            if (isCompanyOrAdminRoute) {
+                const allowedRoles = ["company", "employer", "admin"];
+                if (userRole === "candidate") {
+                    return NextResponse.redirect(new URL("/profile", request.url));
+                }
+                if (!allowedRoles.includes(userRole)) {
                     return NextResponse.redirect(new URL("/forbidden", request.url));
                 }
             }
+
+            if (isCandidateRoute) {
+                if (userRole === "company" || userRole === "employer") {
+                    return NextResponse.redirect(new URL("/dashboard", request.url));
+                }
+            }
         } catch {
-            const loginUrl = new URL("/sign-in", request.url);
-            loginUrl.searchParams.set("redirectTo", pathname);
-            return NextResponse.redirect(loginUrl);
+            if (isProtected) {
+                const loginUrl = new URL("/sign-in", request.url);
+                loginUrl.searchParams.set("redirectTo", `${rawPathname}${search}`);
+                return NextResponse.redirect(loginUrl);
+            }
         }
     }
-
-    return NextResponse.next();
+    return intlMiddleware(request);
 }
 
 export const config = {
-    matcher: [
-        "/profile/:path*",
-        "/dashboard/:path*",
-        "/applications/:path*",
-        "/jobs/:path*",
-        "/admin/:path*",
-        "/sign-in",
-        "/sign-up",
-    ],
+    matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
 };

@@ -49,11 +49,11 @@ function JobCardClickable({
             id={`job-card-${job.id}`}
             onClick={onClick}
             className={clsx(
-                "group relative flex flex-col rounded-2xl bg-white dark:bg-zinc-900 text-left w-full",
+                "group relative flex flex-col rounded-2xl bg-white text-left w-full",
                 "border shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg overflow-hidden cursor-pointer",
                 isActive
-                    ? "border-cyan-400 dark:border-cyan-500 ring-2 ring-cyan-300/40 dark:ring-cyan-500/20 shadow-cyan-100 dark:shadow-none"
-                    : "border-zinc-200/80 dark:border-zinc-800 hover:border-transparent"
+                    ? "border-cyan-400 ring-2 ring-cyan-300/40 shadow-cyan-100"
+                    : "border-zinc-200/80 hover:border-transparent"
             )}
         >
             <span
@@ -64,16 +64,16 @@ function JobCardClickable({
                 )}
             />
             <div className="flex items-start gap-3 p-5 pb-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 text-[13px] font-bold text-zinc-600 dark:text-zinc-300 overflow-hidden">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-[13px] font-bold text-zinc-600 overflow-hidden">
                     {companyLogoUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={companyLogoUrl} alt={displayName} className="h-full w-full object-cover" />
                     ) : initials(displayName)}
                 </div>
                 <div className="min-w-0 flex-1">
-                    <h3 className="truncate text-[15px] font-semibold text-zinc-900 dark:text-zinc-100">{job.title}</h3>
-                    <p className="truncate text-[13px] text-zinc-500 dark:text-zinc-400">{displayName}</p>
-                    <div className="mt-1 flex items-center gap-1 text-[12px] font-medium text-emerald-600 dark:text-emerald-400">
+                    <h3 className="truncate text-[15px] font-semibold text-zinc-900">{job.title}</h3>
+                    <p className="truncate text-[13px] text-zinc-500">{displayName}</p>
+                    <div className="mt-1 flex items-center gap-1 text-[12px] font-medium text-emerald-600">
                         <MapPinIcon size={13} /> {job.location}
                     </div>
                 </div>
@@ -81,26 +81,26 @@ function JobCardClickable({
                     size={18}
                     className={clsx(
                         "mt-1 shrink-0 transition-all",
-                        isActive ? "text-cyan-500 translate-x-0.5 -translate-y-0.5" : "text-zinc-300 dark:text-zinc-700 group-hover:text-cyan-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                        isActive ? "text-cyan-500 translate-x-0.5 -translate-y-0.5" : "text-zinc-300 group-hover:text-cyan-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                     )}
                 />
             </div>
             <div className="flex flex-wrap gap-1.5 px-5 pb-3">
-                <span className="rounded-full bg-cyan-50 dark:bg-cyan-950/40 px-2.5 py-1 text-[11px] font-medium text-cyan-700 dark:text-cyan-300">
+                <span className="rounded-full bg-cyan-50 px-2.5 py-1 text-[11px] font-medium text-cyan-700">
                     {employmentLabel[job.employmentType] ?? job.employmentType}
                 </span>
-                <span className="rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
+                <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700">
                     {workModeLabel[job.workMode] ?? job.workMode}
                 </span>
-                <span className={clsx("rounded-full px-2.5 py-1 text-[11px] font-medium", statusBadge[job.jobPostStatus] ?? "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400")}>
+                <span className={clsx("rounded-full px-2.5 py-1 text-[11px] font-medium", statusBadge[job.jobPostStatus] ?? "bg-zinc-100 text-zinc-500")}>
                     {job.jobPostStatus}
                 </span>
             </div>
-            <div className="mt-auto flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800 px-5 py-3">
-                <span className="text-[13px] font-semibold text-zinc-800 dark:text-zinc-200">
+            <div className="mt-auto flex items-center justify-between border-t border-zinc-100 px-5 py-3">
+                <span className="text-[13px] font-semibold text-zinc-800">
                     {formatSalary(job.minimumSalary, job.maximumSalary, job.currency)}
                 </span>
-                <div className="flex items-center gap-3 text-[12px] text-zinc-400 dark:text-zinc-500">
+                <div className="flex items-center gap-3 text-[12px] text-zinc-400">
                     <span className="flex items-center gap-1"><Users size={13} />{job.numberOfPositions}</span>
                     <span className="flex items-center gap-1"><Clock size={13} />{formatDeadline(job.applicationDeadline)}</span>
                 </div>
@@ -123,7 +123,7 @@ function FilterPill({
                 "px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200",
                 active
                     ? "bg-cyan-500 border-cyan-500 text-white shadow-sm"
-                    : "bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:border-cyan-400 dark:hover:border-cyan-400 hover:text-cyan-600 dark:hover:text-cyan-400"
+                    : "bg-white border-zinc-200 text-zinc-600 hover:border-cyan-400 hover:text-cyan-600"
             )}
         >
             {label}
@@ -188,16 +188,16 @@ export default function JobsPageClient({ jobs }: JobsPageClientProps) {
 
     return (
         <>
-            <div className="min-h-screen bg-zinc-50/50 dark:bg-zinc-950 transition-colors duration-300">
+            <div className="min-h-screen bg-white transition-colors duration-300">
                 {/* ── Page header ───────────────────── */}
-                <div className="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-colors duration-300">
+                <div className="border-b border-zinc-200 bg-white transition-colors duration-300">
                     <div className="max-w-7xl mx-auto px-4 py-8">
                         <div className="flex flex-col sm:flex-row sm:items-end gap-4">
                             <div className="flex-1">
-                                <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-zinc-100">
+                                <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900">
                                     Job Listings
                                 </h1>
-                                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                                <p className="mt-1 text-sm text-zinc-500">
                                     {filtered.length} of {jobs.length} positions available
                                 </p>
                             </div>
@@ -206,7 +206,7 @@ export default function JobsPageClient({ jobs }: JobsPageClientProps) {
                             <button
                                 id="jobs-filter-toggle"
                                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                                className="sm:hidden flex items-center gap-2 px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sm font-semibold text-zinc-700 dark:text-zinc-200 hover:border-cyan-400 transition-colors"
+                                className="sm:hidden flex items-center gap-2 px-4 py-2 rounded-xl border border-zinc-200 bg-white text-sm font-semibold text-zinc-700 hover:border-cyan-400 transition-colors"
                             >
                                 <SlidersHorizontal size={15} />
                                 Filters
@@ -221,25 +221,25 @@ export default function JobsPageClient({ jobs }: JobsPageClientProps) {
                         {/* Search bar */}
                         <div className="mt-4 flex flex-col sm:flex-row gap-3 max-w-3xl">
                             <div className="relative flex-1">
-                                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-500" />
+                                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
                                 <input
                                     id="jobs-search"
                                     type="text"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     placeholder="Search job title or keyword…"
-                                    className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/80 text-sm text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400 transition"
+                                    className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-zinc-200 bg-white text-sm text-zinc-800 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400 transition"
                                 />
                             </div>
                             <div className="relative">
-                                <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-500" />
+                                <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
                                 <input
                                     id="jobs-location"
                                     type="text"
                                     value={locationFilter}
                                     onChange={(e) => setLocationFilter(e.target.value)}
                                     placeholder="Location…"
-                                    className="w-full sm:w-48 pl-9 pr-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/80 text-sm text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400 transition"
+                                    className="w-full sm:w-48 pl-9 pr-4 py-2.5 rounded-xl border border-zinc-200 bg-white text-sm text-zinc-800 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400 transition"
                                 />
                             </div>
                         </div>
@@ -263,15 +263,15 @@ export default function JobsPageClient({ jobs }: JobsPageClientProps) {
                         <div
                             className={clsx(
                                 "sm:static sm:block sm:shadow-none sm:bg-transparent sm:p-0",
-                                "fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-zinc-900 rounded-t-2xl shadow-2xl p-5 border-t border-zinc-200 dark:border-zinc-800 transition-transform duration-300",
+                                "fixed bottom-0 left-0 right-0 z-40 bg-white shadow-2xl p-5 transition-transform duration-300",
                                 sidebarOpen ? "translate-y-0" : "translate-y-full",
                                 "sm:translate-y-0"
                             )}
                         >
                             <div className="flex items-center justify-between mb-4 sm:mb-0">
-                                <p className="text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 sm:mb-3">Filters</p>
+                                <p className="text-xs font-bold uppercase tracking-widest text-zinc-400 sm:mb-3">Filters</p>
                                 {hasFilters && (
-                                    <button onClick={clearFilters} className="text-xs text-cyan-600 dark:text-cyan-400 font-semibold hover:underline flex items-center gap-1">
+                                    <button onClick={clearFilters} className="text-xs text-cyan-600 font-semibold hover:underline flex items-center gap-1">
                                         <X size={12} /> Clear all
                                     </button>
                                 )}
@@ -279,7 +279,7 @@ export default function JobsPageClient({ jobs }: JobsPageClientProps) {
 
                             {/* Employment type */}
                             <div className="mt-4">
-                                <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-2">Employment Type</p>
+                                <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Employment Type</p>
                                 <div className="flex flex-wrap gap-2">
                                     {EMPLOYMENT_TYPES.map((t) => (
                                         <FilterPill
@@ -294,7 +294,7 @@ export default function JobsPageClient({ jobs }: JobsPageClientProps) {
 
                             {/* Work mode */}
                             <div className="mt-5">
-                                <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-2">Work Mode</p>
+                                <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Work Mode</p>
                                 <div className="flex flex-wrap gap-2">
                                     {WORK_MODES.map((m) => (
                                         <FilterPill
@@ -311,11 +311,11 @@ export default function JobsPageClient({ jobs }: JobsPageClientProps) {
 
                     <div className="flex-1 min-w-0">
                         {filtered.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center gap-3 py-20 text-zinc-400 dark:text-zinc-500">
+                            <div className="flex flex-col items-center justify-center gap-3 py-20 text-zinc-400">
                                 <Briefcase size={32} strokeWidth={1.2} />
                                 <p className="text-sm font-medium">No jobs match your filters.</p>
                                 {hasFilters && (
-                                    <button onClick={clearFilters} className="text-xs text-cyan-600 dark:text-cyan-400 font-semibold hover:underline">
+                                    <button onClick={clearFilters} className="text-xs text-cyan-600 font-semibold hover:underline">
                                         Clear filters
                                     </button>
                                 )}
@@ -344,4 +344,3 @@ export default function JobsPageClient({ jobs }: JobsPageClientProps) {
         </>
     );
 }
-

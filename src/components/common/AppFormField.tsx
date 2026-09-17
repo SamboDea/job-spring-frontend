@@ -30,8 +30,8 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 
 const COLORS = {
-    border: '#07c4ec',
-    focus: '#71dd37',
+    border: '#e2e8f0',
+    focus: '#07c4ec',
     error: '#ff3e1d',
 };
 
@@ -243,8 +243,7 @@ export function RichTextField({
                 <InputLabel
                     shrink
                     sx={{
-                        fontSize: 13,
-                        mb: 0.5,
+                        fontSize: 18,
                         color: hasError ? COLORS.error : COLORS.border,
                     }}
                 >

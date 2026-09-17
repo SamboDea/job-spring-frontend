@@ -36,11 +36,11 @@ p,
 span,
 a,
 div {
-    font-family: "Kantumruy Pro", var(--font-kantumruy-pro), "Battambang", "Poppins", sans-serif !important;
+    font-family: var(--font-geist-sans), sans-serif !important;
 }
 
 .font-find {
-    font-family: "Kantumruy Pro", var(--font-kantumruy-pro), "Battambang", "Poppins", sans-serif !important;
+    font-family: var(--font-geist-sans), sans-serif !important;
 }
 
 .g-text {
