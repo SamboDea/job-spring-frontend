@@ -5,8 +5,8 @@ import {
     updateCandidate,
     getCandidateByUserId,
     type CandidatePayload,
-} from "@/src/features/candidate/action";
-import { emptyValues, type PersonalInfoValues } from "@/src/features/candidate/types";
+} from "@/src/features/candidate/personal-information/action";
+import { emptyValues, type PersonalInfoValues } from "@/src/features/candidate/personal-information/types";
 
 function toPayload(values: PersonalInfoValues): CandidatePayload {
     return {

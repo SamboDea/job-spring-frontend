@@ -13,9 +13,6 @@ import {
 } from "@mui/material";
 import { ChevronDown, Plus, Trash2 } from "lucide-react";
 
-/* -------------------------------------------------------------------------- */
-/*                                1. Card Props                               */
-/* -------------------------------------------------------------------------- */
 export interface CardProps {
     title: string;
     subtitle?: string;
@@ -27,8 +24,8 @@ export interface CardProps {
     startDate?: string;
     endDate?: string;
     isCurrent?: boolean;
+    removing?: boolean;
 }
-
 
 export function Card({
     title,
@@ -36,53 +33,84 @@ export function Card({
     canRemove = false,
     onRemove,
     defaultExpanded = true,
+    expanded: controlledExpanded,
+    onToggle,
     preview,
     children,
     startDate,
     endDate,
     isCurrent,
-}: CardProps) {
-    const [expanded, setExpanded] = useState(defaultExpanded);
+    removing = false,
+}: CardProps & { expanded?: boolean; onToggle?: () => void }) {
+    const [uncontrolledExpanded, setUncontrolledExpanded] = useState(defaultExpanded);
+    const isExpanded = controlledExpanded !== undefined ? controlledExpanded : uncontrolledExpanded;
+
+    const handleToggle = () => {
+        if (onToggle) {
+            onToggle();
+        } else {
+            setUncontrolledExpanded((prev) => !prev);
+        }
+    };
 
     return (
         <MuiCard
             variant="outlined"
             sx={{
                 borderRadius: "12px",
-                borderColor: "#ffffff",
+                borderColor: isExpanded ? "rgba(7, 196, 236, 0.4)" : "#ffffff",
                 borderWidth: "1px",
-                boxShadow: "0 2px 8px rgba(7, 196, 236, 0.08)",
+                boxShadow: isExpanded
+                    ? "0 4px 14px rgba(7, 196, 236, 0.12)"
+                    : "0 2px 8px rgba(7, 196, 236, 0.08)",
                 overflow: "hidden",
                 transition: "all 0.2s ease-in-out",
+                opacity: removing ? 0.5 : 1,
+                pointerEvents: removing ? "none" : "auto",
             }}
         >
             <Box
-                onClick={() => setExpanded((prev) => !prev)}
+                onClick={handleToggle}
                 sx={{
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
                     px: 2,
-                    py: 1,
+                    py: 1.5,
                     cursor: "pointer",
-                    bgcolor: expanded ? "rgba(7, 196, 236, 0.04)" : "transparent",
+                    bgcolor: isExpanded ? "rgba(7, 196, 236, 0.04)" : "transparent",
                     transition: "background-color 0.2s ease",
-                    borderBottom: expanded ? "1px solid rgba(7, 196, 236, 0.18)" : "none",
+                    borderBottom: isExpanded ? "1px solid rgba(7, 196, 236, 0.18)" : "none",
                 }}
             >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, overflow: "hidden" }}>
-                    <Collapse in={!expanded} timeout="auto" unmountOnExit>
-                        <CardContent sx={{ p: 3, pt: 2.5 }}>
+                    <Collapse in={!isExpanded} timeout="auto" unmountOnExit>
+                        <CardContent sx={{ p: 1, py: 0.5 }}>
                             {preview ? (
+                                preview
+                            ) : (
                                 <Box sx={{ color: "#6b7280" }}>
-                                    <Typography variant="h6" sx={{ color: "#000000" }}>{title}</Typography>
-                                    {subtitle && <Typography variant="body2" sx={{ color: "#6b7280", fontWeight: "medium", fontSize: "16px" }}>{subtitle}</Typography>}
-                                    <Typography variant="body2" >
-                                        {startDate} - {isCurrent ? "Present" : endDate}
+                                    <Typography variant="h6" sx={{ color: "#000000", fontSize: "16px", fontWeight: 600 }}>
+                                        {title || "Untitled"}
                                     </Typography>
+                                    {subtitle && (
+                                        <Typography variant="body2" sx={{ color: "#6b7280", fontWeight: "medium", fontSize: "14px" }}>
+                                            {subtitle}
+                                        </Typography>
+                                    )}
+                                    {(startDate || endDate || isCurrent) && (
+                                        <Typography variant="caption" sx={{ color: "#9ca3af", display: "block" }}>
+                                            {startDate || ""} - {isCurrent ? "Present" : endDate || ""}
+                                        </Typography>
+                                    )}
                                 </Box>
-                            ) : ""}
+                            )}
                         </CardContent>
+                    </Collapse>
+                    <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                        <Typography variant="h6" sx={{ color: "#07c4ec", fontSize: "15px", fontWeight: 600 }}>
+                            {title ? `Editing: ${title}` : "New Entry"}
+                        </Typography>
                     </Collapse>
                 </Box>
 
@@ -90,6 +118,8 @@ export function Card({
                     {canRemove && onRemove && (
                         <IconButton
                             size="small"
+                            type="button"
+                            disabled={removing}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 onRemove();
@@ -109,19 +139,24 @@ export function Card({
 
                     <IconButton
                         size="small"
+                        type="button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggle();
+                        }}
                         sx={{
                             color: "#07c4ec",
-                            transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+                            transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
                             transition: "transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
                         }}
-                        aria-label={expanded ? "Collapse" : "Expand"}
+                        aria-label={isExpanded ? "Collapse" : "Expand"}
                     >
                         <ChevronDown className="w-5 h-5 text-[#07c4ec]" />
                     </IconButton>
                 </Box>
             </Box>
 
-            <Collapse in={expanded} timeout="auto" unmountOnExit>
+            <Collapse in={isExpanded} timeout="auto" unmountOnExit>
                 <CardContent sx={{ p: 3, pt: 2.5 }}>
                     {children}
                 </CardContent>
@@ -148,6 +183,7 @@ export interface DynamicCardSectionProps<T = any> {
     getItemIsCurrent?: (item: T, index: number) => boolean | undefined;
     renderItem: (namePrefix: string, index: number, item: T) => React.ReactNode;
     renderPreview?: (namePrefix: string, index: number, item: T) => React.ReactNode;
+    onRemoveItem?: (item: T, index: number) => Promise<boolean> | boolean;
 }
 
 export function DynamicCardSection<T = any>({
@@ -164,118 +200,158 @@ export function DynamicCardSection<T = any>({
     getItemIsCurrent,
     renderItem,
     renderPreview,
+    onRemoveItem,
 }: DynamicCardSectionProps<T>) {
     const { values } = useFormikContext<any>();
     const items: T[] = values?.[name] || [];
+    const [openIndex, setOpenIndex] = useState<number | null>(null);
+    const [removingIndex, setRemovingIndex] = useState<number | null>(null);
 
     return (
         <FieldArray name={name}>
-            {({ push, remove }) => (
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
-                            {/* <span className="text-xs h-6 w-6 flex items-center justify-center px-2 py-0.5 rounded-full bg-cyan-50 text-[#07c4ec] border border-[#07c4ec]/30 font-medium">
-                                {items.length}
-                            </span> */}
-                        </div>
+            {({ insert, remove }) => {
+                const handleAddNewOnTop = () => {
+                    insert(0, { ...initialEmptyItem });
+                    setOpenIndex(0); // Open the new box at the top
+                };
 
-                        <Button
-                            variant="outlined"
-                            size="small"
-                            startIcon={<Plus className="w-4 h-4" />}
-                            onClick={() => push({ ...initialEmptyItem })}
-                            sx={{
-                                color: "#07c4ec",
-                                borderColor: "#07c4ec",
-                                borderRadius: "8px",
-                                textTransform: "none",
-                                fontWeight: 600,
-                                "&:hover": {
-                                    borderColor: "#07c4ec",
-                                    bgcolor: "rgba(7, 196, 236, 0.08)",
-                                },
-                            }}
-                        >
-                            {addButtonText}
-                        </Button>
-                    </div>
+                const handleRemove = async (index: number) => {
+                    const item = items[index];
 
-                    {items.length === 0 ? (
-                        <Box
-                            sx={{
-                                border: "1.5px dashed rgba(7, 196, 236, 0.35)",
-                                borderRadius: "12px",
-                                p: 2.7,
-                                textAlign: "center",
-                                bgcolor: "rgba(7, 196, 236, 0.02)",
-                            }}
-                        >
-                            <Typography variant="body1" sx={{ fontWeight: 600, color: "#374151" }}>
-                                {emptyTitle}
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: "#6b7280", mb: 2 }}>
-                                {emptySubtext}
-                            </Typography>
+                    if (onRemoveItem) {
+                        setRemovingIndex(index);
+                        try {
+                            const shouldRemove = await onRemoveItem(item, index);
+                            if (!shouldRemove) {
+                                setRemovingIndex(null);
+                                return; // backend delete failed — keep the card
+                            }
+                        } catch (err) {
+                            console.error("onRemoveItem failed:", err);
+                            setRemovingIndex(null);
+                            return;
+                        }
+                        setRemovingIndex(null);
+                    }
+
+                    remove(index);
+                    if (openIndex === index) {
+                        setOpenIndex(null);
+                    } else if (openIndex !== null && openIndex > index) {
+                        setOpenIndex(openIndex - 1);
+                    }
+                };
+
+                return (
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
+                            </div>
+
                             <Button
-                                variant="contained"
+                                variant="outlined"
                                 size="small"
+                                type="button"
                                 startIcon={<Plus className="w-4 h-4" />}
-                                onClick={() => push({ ...initialEmptyItem })}
+                                onClick={handleAddNewOnTop}
                                 sx={{
-                                    bgcolor: "#07c4ec",
+                                    color: "#07c4ec",
+                                    borderColor: "#07c4ec",
                                     borderRadius: "8px",
                                     textTransform: "none",
                                     fontWeight: 600,
                                     "&:hover": {
-                                        bgcolor: "#05a8cc",
+                                        borderColor: "#07c4ec",
+                                        bgcolor: "rgba(7, 196, 236, 0.08)",
                                     },
                                 }}
                             >
                                 {addButtonText}
                             </Button>
-                        </Box>
-                    ) : (
-                        <div className="space-y-4">
-                            {items.map((item, index) => {
-                                const cardTitle = getItemTitle
-                                    ? getItemTitle(item, index)
-                                    : `Item #${index + 1}`;
-                                const cardSubtitle = getItemSubtitle
-                                    ? getItemSubtitle(item, index)
-                                    : undefined;
-                                const namePrefix = `${name}[${index}]`;
-                                const cardStartDate = getItemStartDate
-                                    ? getItemStartDate(item, index) ?? undefined
-                                    : undefined;
-                                const cardEndDate = getItemEndDate
-                                    ? getItemEndDate(item, index) ?? undefined
-                                    : undefined;
-                                const cardIsCurrent = getItemIsCurrent
-                                    ? getItemIsCurrent(item, index)
-                                    : undefined;
-
-                                return (
-                                    <Card
-                                        key={index}
-                                        title={cardTitle}
-                                        subtitle={cardSubtitle}
-                                        startDate={cardStartDate}
-                                        endDate={cardEndDate}
-                                        isCurrent={cardIsCurrent}
-                                        canRemove={items.length > 0}
-                                        onRemove={() => remove(index)}
-                                        defaultExpanded={index === items.length - 1}
-                                        preview={renderPreview ? renderPreview(namePrefix, index, item) : undefined}
-                                    >
-                                        {renderItem(namePrefix, index, item)}
-                                    </Card>
-                                );
-                            })}
                         </div>
-                    )}
-                </div>
-            )}
+
+                        {items.length === 0 ? (
+                            <Box
+                                sx={{
+                                    border: "1.5px dashed rgba(7, 196, 236, 0.35)",
+                                    borderRadius: "12px",
+                                    p: 2.7,
+                                    textAlign: "center",
+                                    bgcolor: "rgba(7, 196, 236, 0.02)",
+                                }}
+                            >
+                                <Typography variant="body1" sx={{ fontWeight: 600, color: "#374151" }}>
+                                    {emptyTitle}
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: "#6b7280", mb: 2 }}>
+                                    {emptySubtext}
+                                </Typography>
+                                <Button
+                                    variant="contained"
+                                    size="small"
+                                    type="button"
+                                    startIcon={<Plus className="w-4 h-4" />}
+                                    onClick={handleAddNewOnTop}
+                                    sx={{
+                                        bgcolor: "#07c4ec",
+                                        borderRadius: "8px",
+                                        textTransform: "none",
+                                        fontWeight: 600,
+                                        "&:hover": {
+                                            bgcolor: "#05a8cc",
+                                        },
+                                    }}
+                                >
+                                    {addButtonText}
+                                </Button>
+                            </Box>
+                        ) : (
+                            <div className="space-y-4">
+                                {items.map((item, index) => {
+                                    const cardTitle = getItemTitle
+                                        ? getItemTitle(item, index)
+                                        : `Item #${index + 1}`;
+                                    const cardSubtitle = getItemSubtitle
+                                        ? getItemSubtitle(item, index)
+                                        : undefined;
+                                    const namePrefix = `${name}[${index}]`;
+                                    const cardStartDate = getItemStartDate
+                                        ? getItemStartDate(item, index) ?? undefined
+                                        : undefined;
+                                    const cardEndDate = getItemEndDate
+                                        ? getItemEndDate(item, index) ?? undefined
+                                        : undefined;
+                                    const cardIsCurrent = getItemIsCurrent
+                                        ? getItemIsCurrent(item, index)
+                                        : undefined;
+
+                                    const isCardExpanded = openIndex === index;
+
+                                    return (
+                                        <Card
+                                            key={`${name}-${index}`}
+                                            title={cardTitle}
+                                            subtitle={cardSubtitle}
+                                            startDate={cardStartDate}
+                                            endDate={cardEndDate}
+                                            isCurrent={cardIsCurrent}
+                                            canRemove={items.length > 0}
+                                            onRemove={() => handleRemove(index)}
+                                            expanded={isCardExpanded}
+                                            onToggle={() => setOpenIndex(isCardExpanded ? null : index)}
+                                            preview={renderPreview ? renderPreview(namePrefix, index, item) : undefined}
+                                            removing={removingIndex === index}
+                                        >
+                                            {renderItem(namePrefix, index, item)}
+                                        </Card>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+                );
+            }}
         </FieldArray>
     );
 }

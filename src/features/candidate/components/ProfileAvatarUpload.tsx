@@ -5,6 +5,7 @@ import { UserRound, Camera, Loader2, MapPin, AtSign } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { successAlert, errorAlert } from "@/src/lib/alert";
+import { usePersonalInfoForm } from "../personal-information/usePersonalInfoForm";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
@@ -17,6 +18,7 @@ export default function ProfileAvatarUpload({
     initialImageUrl?: string | null;
 }) {
     const { data: session } = authClient.useSession();
+    const { initialValues } = usePersonalInfoForm();
     const [preview, setPreview] = useState<string | null>(initialImageUrl ?? null);
     const [storedUrl, setStoredUrl] = useState<string | null>(initialImageUrl ?? null);
     const [status, setStatus] = useState<UploadStatus>("idle");
@@ -58,7 +60,7 @@ export default function ProfileAvatarUpload({
             successAlert("Photo updated");
         } catch (err) {
             setStatus("idle");
-            setPreview(storedUrl); // revert the optimistic blob preview
+            setPreview(storedUrl);
             errorAlert(err instanceof Error ? err.message : "Something went wrong");
         }
     };
@@ -122,7 +124,7 @@ export default function ProfileAvatarUpload({
                         {session?.user?.name ?? ""}
                     </p>
                     <p className="text-base sm:text-lg md:text-xl text-center md:text-start font-medium text-gray-600">
-                        Web Developer
+                        {initialValues.jobTitle || "No job title"}
                     </p>
                     <div className="flex items-center mt-1 gap-1 min-w-0">
                         <AtSign className="text-xs text-gray-500 w-4 h-4 shrink-0" />
@@ -131,7 +133,7 @@ export default function ProfileAvatarUpload({
                     <div className="flex items-start gap-1 min-w-0 mt-1">
                         <MapPin className="text-xs text-gray-500 w-4 h-4 shrink-0 mt-0.5" />
                         <p className="text-sm text-gray-500 break-words">
-                            #06, Sre Ambel Thmei Village, Sre Ambel Commune, Sre Ambel District, Koh Kong Province.
+                            {initialValues.address || "No address"}
                         </p>
                     </div>
 

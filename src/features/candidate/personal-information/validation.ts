@@ -11,3 +11,4 @@ export const personalInfoValidationSchema = Yup.object({
     industry: Yup.string().required("Industry is required"),
     address: Yup.string().required("Address is required"),
 });
+

@@ -8,8 +8,8 @@ import {
 } from "@/src/components/common/AppFormField";
 import { useTranslations } from "next-intl";
 import { Formik, Form } from "formik";
-import { usePersonalInfoForm } from "@/src/features/candidate/usePersonalInfoForm";
-import { personalInfoValidationSchema } from "@/src/features/candidate/validation";
+import { usePersonalInfoForm } from "@/src/features/candidate/personal-information/usePersonalInfoForm";
+import { personalInfoValidationSchema } from "@/src/features/candidate/personal-information/validation";
 import { SubmitButton } from "./SubmitButton";
 
 export function PersonalInformationSection() {

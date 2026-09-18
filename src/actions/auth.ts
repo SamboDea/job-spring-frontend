@@ -5,7 +5,7 @@ import { pool } from "@/src/lib/db";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { APIError } from "better-auth";
-import { Candidate, createCandidate, getCandidateByUserId } from "@/src/features/candidate/action";
+import { Candidate, createCandidate, getCandidateByUserId } from "@/src/features/candidate/personal-information/action";
 
 export type AuthState = { error: string | null };
 

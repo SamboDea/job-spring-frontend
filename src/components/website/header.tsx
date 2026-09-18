@@ -84,7 +84,7 @@ export default function Header() {
                 </nav>
 
                 <div className="hidden md:flex items-center gap-3">
-                    <LanguageSwitcher />
+                    {/* <LanguageSwitcher /> */}
 
                     {isPending ? (
                         <div className="h-9 w-24 bg-gray-100 animate-pulse rounded-xl" />

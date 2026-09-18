@@ -36,11 +36,11 @@ p,
 span,
 a,
 div {
-    font-family: var(--font-geist-sans), sans-serif !important;
+    font-family: var(--active-font), sans-serif !important;
 }
 
 .font-find {
-    font-family: var(--font-geist-sans), sans-serif !important;
+    font-family: var(--active-font), sans-serif !important;
 }
 
 .g-text {
