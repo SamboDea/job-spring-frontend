@@ -7,6 +7,8 @@ import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { routing } from "@/src/i18n/routing";
+import Swal from "sweetalert2";
+
 
 const kantumruyPro = Kantumruy_Pro({
   subsets: ["khmer", "latin"],

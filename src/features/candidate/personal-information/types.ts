@@ -6,7 +6,7 @@ export type PersonalInfoValues = {
     dateOfBirth: string | null;
     country: string | null;
     city: string | null;
-    jobTitle: string;
+    jobTitle: string | null;
     industry: string | null;
     github: string;
     linkedin: string;
@@ -23,7 +23,7 @@ export const emptyValues: PersonalInfoValues = {
     dateOfBirth: null,
     country: null,
     city: null,
-    jobTitle: "",
+    jobTitle: null,
     industry: null,
     github: "",
     linkedin: "",
@@ -31,3 +31,27 @@ export const emptyValues: PersonalInfoValues = {
     description: "",
     address: "",
 };
+
+export interface CandidatePayload {
+    gender?: string | null;
+    contactNumber?: string | null;
+    dateOfBirth?: string | null;
+    country?: string | null;
+    city?: string | null;
+    jobTitle?: string | null;
+    jobLevelId?: number | null;
+    industry?: string | null;
+    githubUsername?: string | null;
+    linkedinUsername?: string | null;
+    portfolio?: string | null;
+    description?: string | null;
+    address?: string | null;
+}
+
+export interface Candidate extends CandidatePayload {
+    candidateId: number;
+    userId: string;
+    jobLevelName: string | null;
+    isDeleted: boolean;
+    createdAt: string;
+}

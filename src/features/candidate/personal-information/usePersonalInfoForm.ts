@@ -3,10 +3,10 @@ import { authClient } from "@/src/lib/auth-client";
 import {
     createCandidate,
     updateCandidate,
-    getCandidateByUserId,
-    type CandidatePayload,
+    getCandidateByUserId
 } from "@/src/features/candidate/personal-information/action";
-import { emptyValues, type PersonalInfoValues } from "@/src/features/candidate/personal-information/types";
+import { emptyValues, type CandidatePayload, type PersonalInfoValues } from "@/src/features/candidate/personal-information/types";
+import { useWorkExperienceForm } from "../work-experience/useWorkExperienceForm";
 
 function toPayload(values: PersonalInfoValues): CandidatePayload {
     return {
@@ -27,9 +27,11 @@ function toPayload(values: PersonalInfoValues): CandidatePayload {
 
 export function usePersonalInfoForm() {
     const { data: session } = authClient.useSession();
+    const { initialData } = useWorkExperienceForm();
     const [candidateId, setCandidateId] = useState<number | null>(null);
     const [initialValues, setInitialValues] = useState<PersonalInfoValues>(emptyValues);
     const [loading, setLoading] = useState(true);
+    const jobTitle = initialData?.[0]?.jobTitle;
 
     useEffect(() => {
         if (!session?.user?.id) return;
@@ -46,7 +48,7 @@ export function usePersonalInfoForm() {
                     dateOfBirth: candidate?.dateOfBirth ?? null,
                     country: candidate?.country ?? null,
                     city: candidate?.city ?? null,
-                    jobTitle: candidate?.jobTitle ?? "",
+                    jobTitle: jobTitle ?? "fuck",
                     industry: candidate?.industry ?? null,
                     github: candidate?.githubUsername ?? "",
                     linkedin: candidate?.linkedinUsername ?? "",
@@ -58,6 +60,7 @@ export function usePersonalInfoForm() {
             .catch((err) => console.error("Failed to load candidate", err))
             .finally(() => setLoading(false));
     }, [session?.user?.id, session?.user?.name, session?.user?.email]);
+
 
     async function submit(values: PersonalInfoValues) {
         if (!session?.user?.id) {

@@ -62,8 +62,8 @@ export function PersonalInformationSection() {
                             options={["Information Technology", "Finance", "Banking", "Health"]}
                             multiple={false}
                         />
-                        <TextFormField name="github" label="Github" placeholder="e.g. github/username" />
-                        <TextFormField name="linkedin" label="Linkedin" placeholder="e.g. linkedin/username" />
+                        <TextFormField name="githubUsername" label="Github" placeholder="e.g. github/username" />
+                        <TextFormField name="linkedinUsername" label="Linkedin" placeholder="e.g. linkedin/username" />
                         <TextFormField name="portfolio" label="Portfolio" placeholder="e.g. portfolio.com" />
                     </div>
                     <div className="flex items-end justify-around gap-4">
