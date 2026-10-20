@@ -140,13 +140,6 @@ export function PersonalInformationSection({
                                 options={["Cambodia", "Thailand", "Vietnam"]}
                                 multiple={false}
                             />
-
-                            <TextFormField
-                                name="jobTitle"
-                                label="Position"
-                                placeholder="e.g. Developer"
-                            />
-
                             <AutocompleteFormField
                                 name="city"
                                 label="City"
@@ -158,17 +151,7 @@ export function PersonalInformationSection({
                                 ]}
                                 multiple={false}
                             />
-                        </div>
 
-                        <div className="grid grid-cols-1 gap-4">
-                            <TextFormField
-                                name="address"
-                                label="Address"
-                                placeholder="e.g. 123 Main St"
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <AutocompleteFormField
                                 name="industry"
                                 label="Industry"
@@ -181,6 +164,17 @@ export function PersonalInformationSection({
                                 multiple={false}
                             />
 
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4">
+                            <TextFormField
+                                name="address"
+                                label="Address"
+                                placeholder="e.g. 123 Main St"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <TextFormField
                                 name="githubUsername"
                                 label="Github"

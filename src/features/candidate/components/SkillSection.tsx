@@ -101,14 +101,14 @@ export default function SkillSection() {
                     <Form>
                         <Stack spacing={2}>
                             <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center" }}>
-                                <Typography variant="h6" sx={{ fontWeight: 600, fontSize: "16px" }}>
+                                <Typography variant="h6" sx={{ fontWeight: 600, fontSize: "16px", color: "#696CFF" }}>
                                     Skills
                                 </Typography>
                                 {!editing ? (
                                     <Button
                                         size="small"
                                         onClick={() => setEditing(true)}
-                                        sx={{ color: "#2BCDEF", background: "none", textTransform: "none" }}
+                                        sx={{ color: "#696CFF", background: "none", textTransform: "none" }}
                                     >
                                         Edit
                                     </Button>
@@ -121,7 +121,7 @@ export default function SkillSection() {
                                                 setEditing(false);
                                             }}
                                             disabled={saving}
-                                            sx={{ background: "#D7F5FC", color: "#2BCDEF" }}
+                                            sx={{ color: "#696CFF" }}
                                         >
                                             Cancel
                                         </Button>
@@ -158,7 +158,7 @@ export default function SkillSection() {
                                             key={skill}
                                             label={skill}
                                             size="small"
-                                            sx={{ bgcolor: "#E8FADF", fontSize: "15px", color: "#82E14F", fontWeight: 500, padding: "16px 10px" }}
+                                            sx={{ bgcolor: "#FFF2D6", fontSize: "15px", color: "#FFBA2C", fontWeight: 500, padding: "16px 10px" }}
                                         />
                                     ))}
                                 </Stack>

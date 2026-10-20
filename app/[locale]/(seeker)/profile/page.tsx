@@ -24,15 +24,8 @@ export default function ProfilePage() {
         <div className="min-h-screen bg-white">
             <div className="max-w-6xl mx-auto space-y-8">
                 <div className="bg-white rounded-2xl border border-white overflow-hidden">
-                    <div className="h-32 bg-[#2BCDEF]" />
-                    <div className="pt-0 relative">
-                        <div className="px-6 flex flex-col sm:flex-row items-center sm:items-end -mt-16 mb-8 gap-4">
-                            <div className="ring-4 ring-white rounded-full bg-white">
-                                <ProfileAvatarUpload />
-                            </div>
-                        </div>
-                        <PersonalInformationSection userId={userId} />
-                    </div>
+                    <ProfileAvatarUpload />
+                    <PersonalInformationSection userId={userId} />
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">

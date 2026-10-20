@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { AtSign, Camera, Loader2, MapPin, UserRound } from "lucide-react";
+import { AtSign, Camera, FileText, FileUp, Loader2, MapPin, UserRound } from "lucide-react";
 
 import { authClient } from "@/src/lib/auth-client";
 import useCandidate from "@/src/features/candidate/useCandidate";
@@ -81,69 +81,88 @@ export default function ProfileAvatarUpload() {
     return (
         <>
             <LoadingOverlay show={avatarUploading} />
-            <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-8 w-full">
-                <div className="flex flex-col sm:flex-row items-center gap-5 mb-8 pb-8 border-b border-gray-100 md:border-b-0 md:mb-0 md:pb-0">
-                    <div
-                        {...getRootProps()}
-                        className={`relative w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 lg:w-52 lg:h-52 rounded-full border-2 border-dashed flex items-center justify-center cursor-pointer transition-colors shrink-0 ${isDragActive
-                            ? "border-[#07c4ec] bg-cyan-50"
-                            : "border-gray-300 hover:border-[#07c4ec]/60 bg-gray-50"
-                            } ${avatarUploading ? "opacity-70 cursor-wait" : ""}`}
-                    >
-                        <input {...getInputProps()} />
+            <div className="w-full overflow-hidden bg-white">
+                <div className="p-2">
+                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                        {/* Avatar + info */}
+                        <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 min-w-0">
+                            <div
+                                {...getRootProps()}
+                                className={`relative mx-auto md:mx-0 w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-md flex items-center justify-center cursor-pointer transition-all shrink-0 ${isDragActive
+                                    ? "ring-4 ring-[#07c4ec]/40 bg-cyan-50"
+                                    : "bg-gray-50 hover:ring-4 hover:ring-[#07c4ec]/20"
+                                    } ${avatarUploading ? "opacity-70 cursor-wait" : ""}`}
+                            >
+                                <input {...getInputProps()} />
 
-                        {imageUrl ? (
-                            <Image
-                                key={imageUrl}
-                                src={imageUrl}
-                                alt="Profile preview"
-                                className="w-full h-full rounded-full object-cover"
-                                width={512}
-                                height={512}
-                            />
-                        ) : (
-                            <UserRound className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-gray-300" />
-                        )}
+                                {imageUrl ? (
+                                    <Image
+                                        key={imageUrl}
+                                        src={imageUrl}
+                                        alt="Profile preview"
+                                        className="w-full h-full rounded-full object-cover"
+                                        width={512}
+                                        height={512}
+                                    />
+                                ) : (
+                                    <UserRound className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-gray-300" />
+                                )}
 
-                        {avatarUploading && (
-                            <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
-                                <Loader2 className="w-6 h-6 text-white animate-spin" />
+                                {avatarUploading && (
+                                    <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
+                                        <Loader2 className="w-6 h-6 text-white animate-spin" />
+                                    </div>
+                                )}
+
+                                {!avatarUploading && (
+                                    <div className="absolute cursor-pointer bottom-0 right-0 sm:bottom-1 sm:right-1 w-7 h-7 md:w-8 md:h-8 bg-[#696CFF] rounded-full flex items-center justify-center border-2 border-white">
+                                        <Camera className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
+                                    </div>
+                                )}
                             </div>
-                        )}
 
-                        {!avatarUploading && (
-                            <div className="absolute cursor-pointer bottom-1 right-1 sm:bottom-2 sm:right-2 md:bottom-3 md:right-3 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-[#07c4ec] rounded-full flex items-center justify-center border-2 border-white">
-                                <Camera className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-white" />
+                            <div className="min-w-0 text-center md:text-start">
+                                <p className="text-2xl md:text-3xl font-semibold text-gray-800 truncate">
+                                    {user?.name ?? ""}
+                                </p>
+                                <p className="text-base md:text-lg font-medium text-gray-600">
+                                    {jobTitle || "No job title"}
+                                </p>
+
+                                <div className="mt-3 flex flex-wrap justify-center md:justify-start gap-2">
+                                    <span className="inline-flex items-center gap-1.5 max-w-full rounded-xl bg-gray-50 px-3 py-1.5 text-sm text-gray-600">
+                                        <AtSign className="w-4 h-4 shrink-0 text-gray-500" />
+                                        <span className="truncate">{user?.email ?? ""}</span>
+                                    </span>
+                                    <span className="inline-flex items-start gap-1.5 max-w-full rounded-xl bg-gray-50 px-3 py-1.5 text-sm text-gray-600">
+                                        <MapPin className="w-4 h-4 shrink-0 mt-0.5 text-gray-500" />
+                                        <span className="break-words text-start">
+                                            {current?.address || "No address"}
+                                        </span>
+                                    </span>
+                                </div>
                             </div>
-                        )}
-                    </div>
-
-                    <div className="min-w-0">
-                        <p className="text-xl sm:text-2xl text-center md:text-start md:text-3xl font-semibold text-gray-800 truncate">
-                            {user?.name ?? ""}
-                        </p>
-                        <p className="text-base sm:text-lg md:text-xl text-center md:text-start font-medium text-gray-600">
-                            {jobTitle || "No job title"}
-                        </p>
-                        <div className="flex items-center mt-1 gap-1 min-w-0">
-                            <AtSign className="text-xs text-gray-500 w-4 h-4 shrink-0" />
-                            <p className="text-sm text-gray-500 truncate">
-                                {user?.email ?? ""}
-                            </p>
                         </div>
-                        <div className="flex items-start gap-1 min-w-0 mt-1">
-                            <MapPin className="text-xs text-gray-500 w-4 h-4 shrink-0 mt-0.5" />
-                            <p className="text-sm text-gray-500 break-words">
-                                {current?.address || "No address"}
-                            </p>
+
+                        {/* CV drop area: right side, same row as the avatar */}
+                        <div className="flex w-full md:w-auto shrink-0 gap-2">
+                            <button
+                                type="button"
+                                className="cursor-pointer flex w-full md:w-auto items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 px-5 py-3 text-sm text-gray-500 transition-colors hover:border-[#07c4ec]/60 hover:text-[#07c4ec]"
+                            >
+                                <FileUp className="w-5 h-5" />
+                                Drop your CV here
+                            </button>
+
+                            <button
+                                type="button"
+                                className="cursor-pointer flex w-full md:w-auto items-center justify-center gap-2 rounded-xl bg-[#696CFF] px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                                <FileText className="w-5 h-5" />
+                                Generate CV
+                            </button>
                         </div>
                     </div>
-                </div>
-
-                <div className="w-full sm:w-40 md:w-64 lg:w-72 shrink-0 text-center text-sm text-gray-500 transition-colors cursor-pointer">
-                    <button className="border-dashed border-gray-300 border-2 rounded-xl p-3 hover:border-[#07c4ec]/60">
-                        Drop your CV here
-                    </button>
                 </div>
             </div>
         </>
