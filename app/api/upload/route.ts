@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir, unlink } from "fs/promises";
 import path from "path";
 import crypto from "crypto";
+import { headers } from "next/headers";
+import { auth } from "@/src/lib/auth"; // adjust to your actual Better Auth server instance
+import { pool } from "@/src/lib/db"; // adjust to your actual pool import
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
@@ -31,13 +34,26 @@ async function deleteFile(url: string) {
     try {
         await unlink(path.join(UPLOAD_DIR, filename));
     } catch (err: any) {
-        // Already gone is fine — nothing left to clean up.
         if (err.code !== "ENOENT") throw err;
     }
 }
 
+async function getAuthenticatedUserId() {
+    const session = await auth.api.getSession({ headers: await headers() });
+    return session?.user?.id ?? null;
+}
+
+async function updateUserImage(userId: string, url: string) {
+    await pool.query(`UPDATE "user" SET image = $1 WHERE id = $2`, [url, userId]);
+}
+
 // First-time upload (no previous photo to replace).
 export async function POST(req: NextRequest) {
+    const userId = await getAuthenticatedUserId();
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const formData = await req.formData();
     const file = formData.get("avatar") as File | null;
 
@@ -52,14 +68,20 @@ export async function POST(req: NextRequest) {
     }
 
     const url = await saveFile(file);
+    await updateUserImage(userId, url);
+
     return NextResponse.json({ url });
 }
 
-// Replace an existing photo: saves the new file, then removes the old one.
-// The new file is written and returned first — if deleting the old file
-// fails, the user still ends up with a working photo, just an orphaned
-// old file on disk (logged, non-fatal).
+// Replace an existing photo: saves the new file, updates the DB, then
+// removes the old file. DB write happens right after save so the "user"
+// row is never left pointing at a deleted file, even if cleanup fails.
 export async function PATCH(req: NextRequest) {
+    const userId = await getAuthenticatedUserId();
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const formData = await req.formData();
     const file = formData.get("avatar") as File | null;
     const oldUrl = formData.get("oldUrl") as string | null;
@@ -78,13 +100,14 @@ export async function PATCH(req: NextRequest) {
     }
 
     const url = await saveFile(file);
+    await updateUserImage(userId, url);
 
     if (oldUrl) {
         try {
             await deleteFile(oldUrl);
         } catch (err) {
             console.error("Failed to delete previous avatar:", err);
-            // Don't fail the request — the new photo is already live.
+            // DB already points at the new file — safe to not fail the request.
         }
     }
 
@@ -92,6 +115,11 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+    const userId = await getAuthenticatedUserId();
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { url } = await req.json();
 
     if (!url || typeof url !== "string") {
@@ -104,6 +132,7 @@ export async function DELETE(req: NextRequest) {
 
     try {
         await deleteFile(url);
+        await updateUserImage(userId, "");
     } catch {
         return NextResponse.json({ error: "Failed to delete file" }, { status: 500 });
     }

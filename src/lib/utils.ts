@@ -58,3 +58,9 @@ export function decodeUserId(encoded: string): string {
         return encoded;
     }
 }
+
+export const formatDate = (date?: string) => {
+    if (!date) return "";
+    const [year, day, month] = date.slice(0, 10).split("-");
+    return `${day}/${month}/${year}`;
+};

@@ -60,3 +60,7 @@
   color: #ffffff !important;
   cursor: pointer !important;
 }
+
+.css-w9000y-MuiCardContent-root:last-child {
+  padding-bottom: 0px !important;
+}

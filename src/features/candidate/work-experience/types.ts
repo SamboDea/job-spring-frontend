@@ -1,30 +1,22 @@
-export interface WorkExperienceItem {
-    workExperienceId?: number;
-    companyName: string;
+export interface WorkExperiencePayload {
+    candidateId: number;
     jobTitle: string;
-    jobLevelId: number | null;
-    typeOfExperienceId: number | null;
-    startDate: string | null;
-    endDate: string | null;
-    isCurrent: boolean;
+    jobLevelId?: number | null;
+    companyName: string;
+    typeOfExperienceId?: number | null;
     city?: string | null;
     country?: string | null;
-    jobResponsibility: string | null;
+    startDate: string;
+    endDate?: string | null;
+    isCurrent: boolean;
+    jobResponsibility?: string | null;
+    createdBy?: string;
 }
 
-export interface WorkExperienceFormValues {
-    workExperience: WorkExperienceItem[];
+export interface WorkExperience extends WorkExperiencePayload {
+    workExperienceId: number;
+    jobLevelName?: string | null;
+    typeOfExperienceName?: string | null;
+    isDeleted: boolean;
+    createdAt: string;
 }
-
-export const initialEmptyWorkExperience: WorkExperienceItem = {
-    companyName: "",
-    jobTitle: "",
-    jobLevelId: null,
-    typeOfExperienceId: null,
-    startDate: null,
-    endDate: null,
-    isCurrent: false,
-    city: null,
-    country: null,
-    jobResponsibility: "",
-};

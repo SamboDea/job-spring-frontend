@@ -232,10 +232,20 @@ export function RichTextField({
     const outlineColor = hasError ? COLORS.error : COLORS.border;
 
     useEffect(() => {
-        if (editor && field.value !== editor.getHTML()) {
+        if (!editor) return;
+        // Don't stomp on the user's cursor while they're actively editing
+        if (editor.isFocused) return;
+        if (field.value !== editor.getHTML()) {
             editor.commands.setContent(field.value || '', { emitUpdate: false });
         }
     }, [field.value, editor]);
+
+    const toolbarButtons = [
+        { key: 'bold', label: 'Bold', icon: <FormatBoldIcon fontSize="small" />, action: () => editor?.chain().focus().toggleBold().run(), active: editor?.isActive('bold') },
+        { key: 'italic', label: 'Italic', icon: <FormatItalicIcon fontSize="small" />, action: () => editor?.chain().focus().toggleItalic().run(), active: editor?.isActive('italic') },
+        { key: 'bulletList', label: 'Bullet list', icon: <FormatListBulletedIcon fontSize="small" />, action: () => editor?.chain().focus().toggleBulletList().run(), active: editor?.isActive('bulletList') },
+        { key: 'orderedList', label: 'Numbered list', icon: <FormatListNumberedIcon fontSize="small" />, action: () => editor?.chain().focus().toggleOrderedList().run(), active: editor?.isActive('orderedList') },
+    ];
 
     return (
         <Box sx={{ position: "relative" }}>
@@ -244,7 +254,7 @@ export function RichTextField({
                     shrink
                     sx={{
                         fontSize: 18,
-                        color: hasError ? COLORS.error : COLORS.border,
+                        color: '#1e293b',
                     }}
                 >
                     {label}
@@ -256,7 +266,7 @@ export function RichTextField({
                     border: "1px solid",
                     borderColor: outlineColor,
                     borderRadius: "8px",
-                    bgcolor: "background.paper",
+                    bgcolor: "#FAFBFC",
                     transition: "border-color 0.15s ease",
                     "&:hover": {
                         borderColor: outlineColor,
@@ -276,19 +286,15 @@ export function RichTextField({
                         py: 0.5,
                     }}
                 >
-                    {[
-                        { icon: <FormatBoldIcon fontSize="small" />, action: () => editor?.chain().focus().toggleBold().run(), active: editor?.isActive('bold') },
-                        { icon: <FormatItalicIcon fontSize="small" />, action: () => editor?.chain().focus().toggleItalic().run(), active: editor?.isActive('italic') },
-                        { icon: <FormatListBulletedIcon fontSize="small" />, action: () => editor?.chain().focus().toggleBulletList().run(), active: editor?.isActive('bulletList') },
-                        { icon: <FormatListNumberedIcon fontSize="small" />, action: () => editor?.chain().focus().toggleOrderedList().run(), active: editor?.isActive('orderedList') },
-                    ].map((btn, i) => (
+                    {toolbarButtons.map((btn) => (
                         <IconButton
-                            key={i}
+                            key={btn.key}
+                            aria-label={btn.label}
                             size="small"
                             onMouseDown={(e) => e.preventDefault()}
                             onClick={btn.action}
                             sx={{
-                                color: btn.active ? COLORS.border : 'text.secondary',
+                                color: btn.active ? "#2563eb" : "#1e293b",
                             }}
                         >
                             {btn.icon}
@@ -302,7 +308,7 @@ export function RichTextField({
                         py: 1,
                         minHeight,
                         fontSize: 14,
-                        color: COLORS.border,
+                        color: "#1e293b",
                         "& .rich-text-editor-content": {
                             outline: "none",
                         },
@@ -388,6 +394,7 @@ export function TextFormField({ name, sx, ...props }: TextFormFieldProps) {
             {...field}
             {...props}
             fullWidth
+            suppressHydrationWarning
             error={meta.touched && Boolean(meta.error)}
             helperText={meta.touched && meta.error}
             autoComplete="off"
@@ -440,7 +447,7 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
 }
 
 export function AutocompleteFormField(props: AutocompleteFieldProps) {
-    const { name, label, options, multiple, freeSolo = false, size = "small", sx } = props;
+    const { name, label, options, multiple, freeSolo = false, size = "small", sx, onValueChange } = props; // <-- added onValueChange
     const [field, meta] = useField(name);
     const { setFieldValue, setFieldTouched } = useFormikContext();
 
@@ -470,7 +477,7 @@ export function AutocompleteFormField(props: AutocompleteFieldProps) {
                 renderValue={(value, getItemProps) =>
                     value.map((option, index) => {
                         const { key, ...itemProps } = getItemProps({ index });
-                        return <Chip key={key} label={option} size="small" {...itemProps} />;
+                        return <Chip sx={{ bgcolor: "#E8FADF", color: "#82E14F", fontSize: "1" }} key={key} label={option} size="small" {...itemProps} />;
                     })
                 }
                 renderInput={(params) => (
@@ -488,12 +495,14 @@ export function AutocompleteFormField(props: AutocompleteFieldProps) {
     return (
         <Autocomplete
             freeSolo={freeSolo}
+            autoSelect={freeSolo}
             options={options}
             size={size}
             fullWidth
             value={field.value ?? null}
             onChange={(_, newValue) => {
                 setFieldValue(name, newValue);
+                onValueChange?.((newValue as string) ?? "", setFieldValue);
             }}
             onBlur={() => {
                 setFieldTouched(name, true);

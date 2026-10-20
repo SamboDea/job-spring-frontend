@@ -40,21 +40,23 @@ export type TextFormFieldProps = TextFieldProps & {
 export type AutocompleteFieldProps = SingleProps | MultiProps;
 
 export type SingleProps = {
-  name: string;
-  label: string;
-  options: string[];
-  multiple?: false;
-  freeSolo?: boolean;
-  size?: "small" | "medium";
-  sx?: SxProps<Theme>;
+    name: string;
+    label: string;
+    options: string[];
+    multiple?: false;
+    freeSolo?: boolean;
+    size?: "small" | "medium";
+    sx?: SxProps<Theme>;
+    onValueChange?: (value: string, setFieldValue: (name: string, value: unknown) => void) => void;
 };
 
 export type MultiProps = {
-  name: string;
-  label: string;
-  options: string[];
-  multiple: true;
-  freeSolo?: boolean;
-  size?: "small" | "medium";
-  sx?: SxProps<Theme>;
+    name: string;
+    label: string;
+    options: string[];
+    multiple: true;
+    freeSolo?: boolean;
+    size?: "small" | "medium";
+    sx?: SxProps<Theme>;
+    onValueChange?: (value: string, setFieldValue: (name: string, value: unknown) => void) => void;
 };

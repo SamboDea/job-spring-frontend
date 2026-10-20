@@ -2,6 +2,7 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 export interface Candidate {
     candidateId?: number;
+    userId?: string;
     gender?: string | null;
     contactNumber?: string | null;
     dateOfBirth?: string | null;
@@ -16,16 +17,19 @@ export interface Candidate {
     portfolio?: string | null;
     description?: string | null;
     address?: string | null;
-    userId?: string;
+    isDeleted?: boolean;
+    createdAt?: string;
 }
 
 interface CandidateState {
     list: Candidate[];
+    current: Candidate | null;
     loading: boolean;
 }
 
 const initialState: CandidateState = {
     list: [],
+    current: null,
     loading: false,
 };
 
@@ -37,11 +41,14 @@ const candidateSlice = createSlice({
             state.list = action.payload;
             state.loading = false;
         },
+        setCurrent: (state, action: PayloadAction<Candidate | null>) => {
+            state.current = action.payload;
+        },
         setLoading: (state, action: PayloadAction<boolean>) => {
             state.loading = action.payload;
         },
-    }
+    },
 });
 
-export const { setList, setLoading } = candidateSlice.actions;
+export const { setList, setCurrent, setLoading } = candidateSlice.actions;
 export default candidateSlice.reducer;

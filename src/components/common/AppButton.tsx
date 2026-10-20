@@ -14,7 +14,7 @@ export default function AppButton({
     loadingText = "Loading...",
     children,
     disabled,
-    bgColor = "#71dd37",
+    bgColor = "#E8FADF",
     sx,
     ...props
 }: AppButtonProps) {
@@ -23,13 +23,14 @@ export default function AppButton({
             {...props}
             disabled={disabled || loading}
             type="submit"
+            onClick={props.onClick}
             sx={{
                 height: 46,
                 borderRadius: "8px",
                 textTransform: "none",
                 fontWeight: 600,
                 fontSize: "0.95rem",
-                color: "#ffffff",
+                color: "#82E14F",
 
                 backgroundColor: bgColor,
 

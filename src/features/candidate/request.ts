@@ -14,3 +14,6 @@ export const reqCreateCandidate = (payload: Candidate) =>
 
 export const reqUpdateCandidate = (candidateId: number, payload: Candidate) =>
     axios.put<Candidate>(`/candidates/${candidateId}`, payload);
+
+export const reqDeleteCandidate = (candidateId: number) =>
+    axios.delete<void>(`/candidates/${candidateId}`);
