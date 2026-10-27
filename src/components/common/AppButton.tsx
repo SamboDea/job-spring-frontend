@@ -14,7 +14,7 @@ export default function AppButton({
     loadingText = "Loading...",
     children,
     disabled,
-    bgColor = "#E8FADF",
+    bgColor = "#696CFF",
     sx,
     ...props
 }: AppButtonProps) {
@@ -30,7 +30,7 @@ export default function AppButton({
                 textTransform: "none",
                 fontWeight: 600,
                 fontSize: "0.95rem",
-                color: "#82E14F",
+                color: "#ffffff",
 
                 backgroundColor: bgColor,
 

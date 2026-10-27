@@ -23,7 +23,7 @@ export default function ProfilePage() {
     return (
         <div className="min-h-screen bg-white">
             <div className="max-w-6xl mx-auto space-y-8">
-                <div className="bg-white rounded-2xl border border-white overflow-hidden">
+                <div className="bg-white overflow-hidden">
                     <ProfileAvatarUpload />
                     <PersonalInformationSection userId={userId} />
                 </div>

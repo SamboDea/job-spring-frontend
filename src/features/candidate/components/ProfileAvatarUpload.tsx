@@ -12,6 +12,8 @@ import Image from "next/image";
 import Swal from "sweetalert2";
 import useWorkExperience from "../work-experience/useWorkExperience";
 import LoadingOverlay from "@/src/components/common/LoadingOverlay";
+import CvDropzone from "./CvDropzone";
+import GenerateCvButton from "./GenerateCvButton";
 
 const MAX_SIZE = 5 * 1024 * 1024;
 
@@ -144,23 +146,9 @@ export default function ProfileAvatarUpload() {
                             </div>
                         </div>
 
-                        {/* CV drop area: right side, same row as the avatar */}
                         <div className="flex w-full md:w-auto shrink-0 gap-2">
-                            <button
-                                type="button"
-                                className="cursor-pointer flex w-full md:w-auto items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 px-5 py-3 text-sm text-gray-500 transition-colors hover:border-[#07c4ec]/60 hover:text-[#07c4ec]"
-                            >
-                                <FileUp className="w-5 h-5" />
-                                Drop your CV here
-                            </button>
-
-                            <button
-                                type="button"
-                                className="cursor-pointer flex w-full md:w-auto items-center justify-center gap-2 rounded-xl bg-[#696CFF] px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-                            >
-                                <FileText className="w-5 h-5" />
-                                Generate CV
-                            </button>
+                            <CvDropzone />
+                            <GenerateCvButton />
                         </div>
                     </div>
                 </div>

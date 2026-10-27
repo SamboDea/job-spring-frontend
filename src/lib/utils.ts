@@ -64,3 +64,46 @@ export const formatDate = (date?: string) => {
     const [year, day, month] = date.slice(0, 10).split("-");
     return `${day}/${month}/${year}`;
 };
+
+export function formatMonthYear(value?: string | null): string | undefined {
+    if (!value) return undefined;
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return value;
+    return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+}
+
+export function buildFileName(fullName: string): string {
+    const safe = fullName.trim().replace(/[^\w\-]+/g, "_") || "My";
+    return `${safe}_CV.pdf`;
+}
+
+export function toLines(value?: string | string[] | null): string[] | undefined {
+    if (!value) return undefined;
+
+    const raw = Array.isArray(value) ? value : value.split(/\r?\n/);
+
+    const lines = raw
+        .map((line) => line.replace(/^\s*[-•*●▪]+\s*/, "").trim()) // strip leading bullet characters
+        .filter(Boolean);
+
+    return lines.length > 0 ? lines : undefined;
+}
+
+export async function imageToDataUrl(url?: string | null): Promise<string | undefined> {
+    if (!url) return undefined;
+    if (url.startsWith("data:")) return url; // already base64, nothing to fetch
+
+    try {
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) return undefined;
+        const blob = await res.blob();
+        return await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    } catch {
+        return undefined;
+    }
+}

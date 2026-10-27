@@ -13,6 +13,7 @@ import useAuth from "@/src/hooks/useAuth";
 import AppButton from "@/src/components/common/AppButton";
 
 import { Suspense } from "react";
+import SocialAuthButtons from "@/src/features/auth/components/SocialAuthButtons";
 
 const initialValues: LoginValues = { email: "", password: "" };
 
@@ -22,14 +23,14 @@ const validationSchema = Yup.object({
 });
 
 function LoginForm() {
-    const { handleSubmitLogin, authError } = useAuth();
+    const { handleSubmitLogin, handleSocialLogin, socialLoading, authError } = useAuth();
 
     return (
         <>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-1 text-center">
                 Welcome Back
             </h1>
-            <p className="text-sm text-gray-500 mb-8 text-center">
+            <p className="text-sm text-gray-500 mb-6 text-center">
                 Sign in to continue your career journey.
             </p>
 
@@ -38,6 +39,11 @@ function LoginForm() {
                     {authError}
                 </Alert>
             )}
+
+            {/* <SocialAuthButtons
+                onSocialLogin={handleSocialLogin}
+                loadingProvider={socialLoading}
+            /> */}
 
             <Formik
                 initialValues={initialValues}
@@ -66,7 +72,7 @@ function LoginForm() {
                         <div className="flex items-center justify-end">
                             <Link
                                 href="/forgot-password"
-                                className="text-sm text-[#07c4ec] font-semibold hover:underline"
+                                className="text-sm text-[#696CFF] font-semibold hover:underline"
                             >
                                 Forgot Password?
                             </Link>
@@ -74,6 +80,7 @@ function LoginForm() {
                         <AppButton
                             type="submit"
                             loading={isSubmitting}
+                            disabled={Boolean(socialLoading)}
                             loadingText="Signing in..."
                         >
                             Sign In

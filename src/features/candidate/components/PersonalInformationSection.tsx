@@ -16,6 +16,7 @@ import { SubmitButton } from "./SubmitButton";
 import { authClient } from "@/src/lib/auth-client";
 import LoadingOverlay from "@/src/components/common/LoadingOverlay";
 import Swal from "sweetalert2";
+import { Divider } from "@mui/material";
 
 interface PersonalInformationSectionProps {
     userId: string | undefined;
@@ -194,19 +195,19 @@ export function PersonalInformationSection({
                             />
                         </div>
 
-                        <div className="flex flex-col lg:flex-row items-end gap-4">
-                            <div className="flex-1 w-full">
+                        <div className="flex flex-col lg:flex-row items-end gap-4 rounded-none">
+                            <div className="flex-1 w-full ">
                                 <RichTextField
                                     name="description"
                                     label="Description"
                                     placeholder="Describe yourself"
                                 />
                             </div>
-
-                            <div className="w-full lg:w-auto">
-                                <SubmitButton />
-                            </div>
                         </div>
+                        <div className="w-full lg:w-auto">
+                            <SubmitButton />
+                        </div>
+                        <Divider />
                     </div>
                 </Form>
             </Formik>
