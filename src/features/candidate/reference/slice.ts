@@ -16,14 +16,32 @@ const referenceSlice = createSlice({
     initialState,
     reducers: {
         setList: (state, action: PayloadAction<ReferenceResponse[]>) => {
-            state.list = action.payload;
+            state.list = Array.isArray(action.payload) ? action.payload : [];
+        },
+        addReference: (state, action: PayloadAction<ReferenceResponse>) => {
+            state.list.push(action.payload);
+        },
+        updateReferenceInList: (state, action: PayloadAction<ReferenceResponse>) => {
+            const i = state.list.findIndex(
+                (r) => r.referenceId === action.payload.referenceId
+            );
+            if (i !== -1) state.list[i] = action.payload;
+        },
+        removeReference: (state, action: PayloadAction<number>) => {
+            state.list = state.list.filter((r) => r.referenceId !== action.payload);
         },
         setLoading: (state, action: PayloadAction<boolean>) => {
             state.loading = action.payload;
-        }
+        },
     },
 });
 
-export const { setList, setLoading } = referenceSlice.actions;
+export const {
+    setList,
+    addReference,
+    updateReferenceInList,
+    removeReference,
+    setLoading,
+} = referenceSlice.actions;
 
 export default referenceSlice.reducer;

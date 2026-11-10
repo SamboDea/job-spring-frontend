@@ -18,6 +18,7 @@ export interface CvData {
         degree: string;
         startDate: string;
         endDate?: string;
+        major?: string;
     }[];
     skills: string[];
     languages: { name: string; level?: string }[];

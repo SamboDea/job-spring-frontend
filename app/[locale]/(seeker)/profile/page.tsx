@@ -27,8 +27,19 @@ export default function ProfilePage() {
                     <ProfileAvatarUpload />
                     <PersonalInformationSection userId={userId} />
                 </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-26">
+                    <div className="lg:col-span-6 space-y-6">
+                        <section>
+                            <WorkExperienceSection candidateId={candidateId} />
+                        </section>
+                    </div>
+                    <div className="lg:col-span-6 space-y-6">
+                        <section>
+                            <EducationSection />
+                        </section>
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-26">
                     <div className="lg:col-span-6 space-y-6">
                         <section>
                             <SkillSection />
@@ -40,7 +51,7 @@ export default function ProfilePage() {
                         </section>
                     </div>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-26">
                     <div className="lg:col-span-6 space-y-6">
                         <section>
                             <LanguageSection />
@@ -49,18 +60,6 @@ export default function ProfilePage() {
                     <div className="lg:col-span-6 space-y-6">
                         <section>
                             <AchievementSection />
-                        </section>
-                    </div>
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                    <div className="lg:col-span-6 space-y-6">
-                        <section>
-                            <WorkExperienceSection candidateId={candidateId} />
-                        </section>
-                    </div>
-                    <div className="lg:col-span-6 space-y-6">
-                        <section>
-                            <EducationSection />
                         </section>
                     </div>
                 </div>

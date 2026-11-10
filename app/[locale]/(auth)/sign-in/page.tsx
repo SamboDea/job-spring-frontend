@@ -40,10 +40,10 @@ function LoginForm() {
                 </Alert>
             )}
 
-            {/* <SocialAuthButtons
+            <SocialAuthButtons
                 onSocialLogin={handleSocialLogin}
                 loadingProvider={socialLoading}
-            /> */}
+            />
 
             <Formik
                 initialValues={initialValues}

@@ -1,35 +1,34 @@
-"use client";
+// app/(dashboard)/layout.tsx
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { auth } from "@/src/lib/auth";
+import Sidebar from "@/src/components/dashboard/layout/Sidebar";
+import DashboardHeader from "@/src/components/dashboard/layout/DashboardHeader";
 
-import React from "react";
-import { Sidebar } from "@/src/components/dashboard/Sidebar/Sidebar";
-import { Header } from "@/src/components/dashboard/Header/Header";
-import { SidebarProvider, useSidebar } from "@/src/components/dashboard/SidebarContext/SidebarContext";
-import clsx from "clsx";
+export default async function DashboardLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    const session = await auth.api.getSession({ headers: await headers() });
 
-function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
-    const { isCollapsed } = useSidebar();
+    if (!session) redirect("/login");
+
+    const { role } = session.user;
+
+    if (role !== "admin" && role !== "employer") redirect("/");
 
     return (
-        <div className="min-h-screen bg-white">
-            <Sidebar />
+        <div className="flex h-dvh overflow-hidden bg-[#f5f5f9]">
+            <aside className="hidden w-72 shrink-0 overflow-y-auto bg-white lg:block">
+                <Sidebar role={role} />
+            </aside>
 
-            <div
-                className={clsx(
-                    "flex flex-col min-h-screen transition-all duration-300 ease-in-out",
-                    isCollapsed ? "lg:pl-[76px]" : "lg:pl-[280px]"
-                )}
-            >
-                <Header />
-                <main className="flex-1 p-6 space-y-6">{children}</main>
+            <div className="flex min-w-0 flex-1 flex-col overflow-y-auto p-0 md:p-5">
+                <DashboardHeader user={session.user} role={role} />
+
+                <main className="flex-1 p-4 md:mt-5 md:p-0">{children}</main>
             </div>
         </div>
-    );
-}
-
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-    return (
-        <SidebarProvider>
-            <DashboardLayoutInner>{children}</DashboardLayoutInner>
-        </SidebarProvider>
     );
 }

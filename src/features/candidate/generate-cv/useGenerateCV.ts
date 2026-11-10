@@ -52,6 +52,7 @@ export default function useGenerateCV() {
                 degree: e.educationLevelName,
                 startDate: formatMonthYear(e.startDate) ?? "",
                 endDate: formatMonthYear(e.endDate),
+                major: e.majorName,
             })),
 
             skills: skills.map((s) => s.skillName),

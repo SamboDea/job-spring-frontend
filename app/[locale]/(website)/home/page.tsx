@@ -1,27 +1,6 @@
 
 import Link from "next/link";
 import { FiSearch, FiMapPin, FiZap } from "react-icons/fi";
-import { JobCardSkeleton } from "@/src/components/jobs/JobCard";
-import JobListWithDrawer from "@/src/features/jobs/components/JobListWithDrawer";
-import { fetchPublicJobPostsAction } from "@/src/actions/jobPost";
-import { Suspense } from "react";
-
-async function JobsSection() {
-    const { data: jobs, error } = await fetchPublicJobPostsAction();
-
-    if (error) {
-        return (
-            <p className="text-center text-sm text-slate-400 py-12">{error}</p>
-        );
-    }
-
-    return (
-        <JobListWithDrawer
-            jobs={jobs}
-            emptyMessage="No job postings available right now. Check back soon!"
-        />
-    );
-}
 
 export default function HomePage() {
 
@@ -49,23 +28,6 @@ export default function HomePage() {
 
             </section>
 
-            <section className="max-w-7xl mx-auto px-4 pb-20">
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-slate-900">Latest Job Openings</h2>
-                    <Link href="/jobs" className="text-sm font-semibold text-cyan-600 hover:text-cyan-700 transition-colors">
-                        View all →
-                    </Link>
-                </div>
-                <Suspense
-                    fallback={
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            {Array.from({ length: 6 }).map((_, i) => <JobCardSkeleton key={i} />)}
-                        </div>
-                    }
-                >
-                    <JobsSection />
-                </Suspense>
-            </section>
         </div>
     );
 }

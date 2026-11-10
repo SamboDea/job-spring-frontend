@@ -14,7 +14,7 @@ export const reqGetReferenceById = (referenceId: number) => {
 }
 
 export const reqCreateReference = (candidateId: number, payload: ReferencePayload) => {
-    return axios.post<ReferenceResponse[]>(`references/candidate/${candidateId}`, payload);
+    return axios.post<ReferenceResponse[]>(`references`, payload);
 }
 
 export const reqUpdateReference = (referenceId: number, payload: ReferencePayload) => {

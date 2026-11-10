@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import * as Yup from "yup";
 import { DynamicEntrySection } from "@/src/components/seeker/DynamicEntrySection";
 import { EntryFieldConfig } from "@/src/types/dynamic-entry";
@@ -51,13 +51,30 @@ export default function ReferenceSection() {
         deleteReference,
     } = useReference();
 
+    const fetchedFor = useRef<number | null>(null);
+
     useEffect(() => {
-        if (candidateId) {
-            getReferenceByCandidateId(candidateId).catch(() => { });
-        }
+        if (!candidateId) return;
+        if (fetchedFor.current === candidateId) return;
+        fetchedFor.current = candidateId;
+        getReferenceByCandidateId(candidateId).catch(() => {
+            fetchedFor.current = null;
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [candidateId]);
 
-    const entries = list.map((item) => ({
+    const reload = async () => {
+        if (!candidateId) return;
+        try {
+            await getReferenceByCandidateId(candidateId);
+        } catch {
+            // handled in the request layer
+        }
+    };
+
+    const safeList = Array.isArray(list) ? list : [];
+
+    const entries = safeList.map((item) => ({
         ...item,
         id: item.referenceId,
     }));
@@ -87,18 +104,21 @@ export default function ReferenceSection() {
                         candidateId,
                         createdBy: user?.name ?? "",
                     } as ReferencePayload);
+                    await reload();
                 }}
                 onUpdate={async (id, values) => {
                     if (!candidateId) return;
-                    const existing = list.find((r) => r.referenceId === id);
+                    const existing = safeList.find((r) => r.referenceId === id);
                     await updateReference(id, {
                         ...values,
                         candidateId,
                         createdBy: existing?.createdBy ?? "",
                     } as ReferencePayload);
+                    await reload();
                 }}
                 onDelete={async (id) => {
                     await deleteReference(id);
+                    await reload();
                 }}
             />
         </div>

@@ -86,7 +86,6 @@ export default function ProfileAvatarUpload() {
             <div className="w-full overflow-hidden bg-white">
                 <div className="p-2">
                     <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-                        {/* Avatar + info */}
                         <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 min-w-0">
                             <div
                                 {...getRootProps()}
@@ -105,6 +104,7 @@ export default function ProfileAvatarUpload() {
                                         className="w-full h-full rounded-full object-cover"
                                         width={512}
                                         height={512}
+                                        unoptimized
                                     />
                                 ) : (
                                     <UserRound className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-gray-300" />

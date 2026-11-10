@@ -1,21 +1,44 @@
-version: "3.9"
-
 services:
   postgres:
     image: postgres:17
     container_name: postgres-db
     restart: unless-stopped
-
     environment:
-      POSTGRES_USER: JobSpring
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: JobSpring_DB
-
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5435:5432"
-
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U JobSpring -d JobSpring_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
+  web:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_SPRING_API_URL: ${NEXT_PUBLIC_SPRING_API_URL}
+        SPRING_API_URL: http://host.docker.internal:9090
+    container_name: jobspring-web
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      SPRING_API_URL: http://host.docker.internal:9090
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "3000:3000"
+  
 volumes:
   postgres_data:
+    external: true
+    name: postgre_postgres_data

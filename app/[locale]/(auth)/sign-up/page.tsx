@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Logo from "@/public/logo/logo.png";
@@ -10,7 +11,6 @@ import { Typography, Alert, MenuItem } from "@mui/material";
 import {
     TextFormField,
     PasswordField,
-    PasswordStrength,
 } from "@/src/components/common/AppFormField";
 
 import IllustrationPanel from "@/src/components/website/IllustrationPanel";
@@ -46,7 +46,7 @@ const validationSchema = Yup.object({
         .required("Account type is required"),
 });
 
-export default function SignUpPage() {
+function SignUpContent() {
     const { authError, signUp } = useAuth();
 
     const handleSubmit = async (
@@ -124,7 +124,7 @@ export default function SignUpPage() {
                         validationSchema={validationSchema}
                         onSubmit={handleSubmit}
                     >
-                        {({ isSubmitting, values }) => (
+                        {({ isSubmitting }) => (
                             <Form
                                 noValidate
                                 className="flex flex-col gap-7"
@@ -169,9 +169,6 @@ export default function SignUpPage() {
                                     id="register-password"
                                 />
 
-                                {/* Password Strength */}
-                                {/* <PasswordStrength password={values.password} /> */}
-
                                 {/* Submit */}
                                 <AppButton
                                     type="submit"
@@ -203,5 +200,13 @@ export default function SignUpPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function SignUpPage() {
+    return (
+        <Suspense fallback={null}>
+            <SignUpContent />
+        </Suspense>
     );
 }

@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import { AutocompleteFormField } from "@/src/components/common/AppFormField";
 import useSkill from "../skills/useSkill";
 import useCandidate from "../useCandidate";
+import LoadingOverlay from "@/src/components/common/LoadingOverlay";
 
 interface SkillFormValues {
     skills: string[];
@@ -18,9 +19,7 @@ export default function SkillSection() {
 
     const { list, candidateSkills: candidateSkillList, loading, getSkills, getCandidateSkills, createSkill, deleteCandidateSkill } = useSkill();
     const { current } = useCandidate();
-
     const candidateId = current?.candidateId;
-
     const [editing, setEditing] = useState(false);
     const [saving, setSaving] = useState(false);
     const savingRef = useRef(false);
@@ -38,7 +37,6 @@ export default function SkillSection() {
         if (candidateId) getCandidateSkills(candidateId);
     }, [candidateId]);
 
-    // unique options (ignore case / spaces) so the dropdown never shows the same name twice
     const skillOptions = useMemo(() => {
         const seen = new Map<string, string>();
         list.forEach((s) => {
@@ -53,7 +51,6 @@ export default function SkillSection() {
     const handleSubmit = async (values: SkillFormValues) => {
         if (!candidateId || savingRef.current) return;
 
-        // dedupe + trim what the user submitted
         const uniqueAfter = new Map<string, string>();
         values.skills.forEach((name) => {
             const key = normalize(name);
@@ -76,7 +73,6 @@ export default function SkillSection() {
             }
 
             for (const name of added) {
-                // createSkill already dispatches addSkill, so no dispatch here
                 const res = await createSkill({ skillName: name, createdBy: candidateId });
                 if (!res) failed = true;
             }
@@ -84,7 +80,7 @@ export default function SkillSection() {
             await getCandidateSkills(candidateId);
             if (!failed) {
                 if (removed.length || added.length) {
-                    Swal.fire({ title: "Success", text: "Skills updated successfully", icon: "success" });
+                    < LoadingOverlay show={loading} />
                 }
                 setEditing(false);
             }
@@ -129,7 +125,7 @@ export default function SkillSection() {
                                             size="small"
                                             onClick={submitForm}
                                             disabled={saving || loading}
-                                            sx={{ background: "#E8FADF", color: "#82E14F", marginBottom: 0 }}
+                                            sx={{ background: "#696CFF", color: "#ffffff", marginBottom: 0 }}
                                         >
                                             Save
                                         </Button>
@@ -158,7 +154,7 @@ export default function SkillSection() {
                                             key={skill}
                                             label={skill}
                                             size="small"
-                                            sx={{ bgcolor: "#FFF2D6", fontSize: "15px", color: "#FFBA2C", fontWeight: 500, padding: "16px 10px" }}
+                                            sx={{ bgcolor: "#82E14F", fontSize: "15px", color: "#ffffff", fontWeight: 500, padding: "16px 10px" }}
                                         />
                                     ))}
                                 </Stack>

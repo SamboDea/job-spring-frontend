@@ -7,7 +7,7 @@ export function SubmitButton() {
     const { isSubmitting } = useFormikContext();
 
     return (
-        <AppButton loading={isSubmitting} loadingText="Saving..." sx={{ height: 40, fontSize: "14px", color: "white", }}>
+        <AppButton loading={isSubmitting} loadingText="Saving..." sx={{ height: 40, fontSize: "14px", color: "white", padding: ["12px", "16px"] }}>
             Save Changes
         </AppButton>
     );
